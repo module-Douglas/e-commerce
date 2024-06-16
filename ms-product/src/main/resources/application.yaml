@@ -1,0 +1,54 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: ms-product
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKER:localhost:9092}
+    consumer:
+      group-id: ms-product-group
+      auto-offset-reset: latest
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6380}
+      password: ${REDIS_PASSWORD:root}
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${DATABASE_NAME:postgres}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:root}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    generate-ddl: true
+
+  cache:
+    type: redis
+    cache-names: searched_products
+
+  flyway:
+    baseline-on-migrate: true
+    enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${DISCOVERY_SERVER:localhost}:8761/eureka
+  instance:
+    instance-id: ${PORT:8080}
+
+
+logging:
+  level:
+    org:
+      apache:
+        kafka: OFF

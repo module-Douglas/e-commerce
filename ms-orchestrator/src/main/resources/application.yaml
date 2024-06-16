@@ -1,0 +1,25 @@
+server:
+  port: ${PORT:4000}
+
+spring:
+  application:
+    name: ms-orchestrator
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKER:localhost:9092}
+    consumer:
+      group-id: ms-orchestrator-group
+      auto-offset-reset: latest
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${DISCOVERY_SERVER:localhost}/8761/eureka
+  instance:
+    instance-id: ${PORT:4000}
+
+logging:
+  level:
+    org:
+      apache:
+        kafka: OFF

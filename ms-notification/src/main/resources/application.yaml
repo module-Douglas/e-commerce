@@ -1,0 +1,45 @@
+server:
+  port: ${PORT:4001}
+
+spring:
+  application:
+    name: ms-notification
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKER:localhost:9092}
+    consumer:
+      group-id: ms-notification-group
+      auto-offset-reset: latest
+
+  data:
+    mongodb:
+      database: ${MONGO_DATABASE:admin}
+      uri: ${MONGO_URI:mongodb://root:root@localhost:27017/}
+
+  mail:
+    host: smtp-mail.outlook.com
+    port: 587
+    username: ${EMAIL}
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail:
+        tls: true
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: smtp-mail.outlook.com
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${DISCOVERY_SERVER:localhost}/8761/eureka
+  instance:
+    instance-id: ${PORT:4001}
+
+logging:
+  level:
+    org:
+      apache:
+        kafka: OFF
