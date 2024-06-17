@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum Topics {
 
     START_SAGA("start-saga"),
-    NOTIFY_ENDING("notify-ending");
+    NOTIFY_ENDING("notify-ending"),
+    SEND_EMAIL("send-email");
 
     private final String topic;
 }

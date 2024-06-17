@@ -9,7 +9,8 @@ public enum Topics {
 
     ORCHESTRATOR("orchestrator"),
     ACCOUNT_ADDRESS_VALIDATION("account-address-validation"),
-    ACCOUNT_ADDRESS_ROLLBACK("account-address-rollback");
+    ACCOUNT_ADDRESS_ROLLBACK("account-address-rollback"),
+    SEND_EMAIL("send-email");
 
     private final String topic;
 
