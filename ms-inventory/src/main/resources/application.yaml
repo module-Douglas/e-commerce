@@ -10,6 +10,9 @@ spring:
     consumer:
       group-id: ms-inventory-group
       auto-offset-reset: latest
+    topic:
+      inventory-validation: inventory-validation
+      inventory-rollback: inventory-rollback
 
   datasource:
     driver-class-name: org.postgresql.Driver

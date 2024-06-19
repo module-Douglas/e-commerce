@@ -10,11 +10,16 @@ spring:
     consumer:
       group-id: ms-orchestrator-group
       auto-offset-reset: latest
+    topic:
+      start-saga: start-saga
+      orchestrator: orchestrator
+      finish-success: finish-success
+      finish-fail: finish-fail
 
 eureka:
   client:
     service-url:
-      defaultZone: http://${DISCOVERY_SERVER:localhost}/8761/eureka
+      defaultZone: http://${DISCOVERY_SERVER:localhost}:8761/eureka
   instance:
     instance-id: ${PORT:4000}
 

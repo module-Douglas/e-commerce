@@ -10,6 +10,9 @@ spring:
     consumer:
       group-id: ms-product-group
       auto-offset-reset: latest
+    topics:
+      product-validation: product-validation
+      product-rollback: product-rollback
 
   data:
     redis:

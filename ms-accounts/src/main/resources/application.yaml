@@ -3,13 +3,16 @@ server:
 
 spring:
   application:
-    name: ms-inventory
+    name: ms-accounts
 
   kafka:
     bootstrap-servers: ${KAFKA_BROKER:localhost:9092}
     consumer:
-      group-id: ms-inventory-group
+      group-id: ms-accounts-group
       auto-offset-reset: latest
+    topic:
+      account-address-validation: account-address-validation
+      account-address-rollback: account-address-rollback
 
   datasource:
     driver-class-name: org.postgresql.Driver

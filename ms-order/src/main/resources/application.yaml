@@ -10,6 +10,8 @@ spring:
     consumer:
       group-id: ms-order-group
       auto-offset-reset: latest
+    topics:
+      notify-ending: notify-ending
 
   data:
     mongodb:

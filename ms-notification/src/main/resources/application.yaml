@@ -10,6 +10,8 @@ spring:
     consumer:
       group-id: ms-notification-group
       auto-offset-reset: latest
+    topic:
+      send-email: send-email
 
   data:
     mongodb:
