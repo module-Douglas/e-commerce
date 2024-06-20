@@ -2,11 +2,13 @@ package io.github.douglas.ms_order.model.entity;
 
 import lombok.*;
 
+import java.util.UUID;
+
 @Getter @Setter @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderProduct {
+public class AccountDetails {
 
-    private Product product;
-    private Long quantity;
+    private UUID userId;
+    private String email;
 }

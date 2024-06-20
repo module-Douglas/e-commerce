@@ -10,7 +10,7 @@ spring:
     consumer:
       group-id: ms-order-group
       auto-offset-reset: latest
-    topics:
+    topic:
       notify-ending: notify-ending
 
   data:
@@ -21,7 +21,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: ${DISCOVERY_SERVER:localhost}:8761/eureka
+      defaultZone: http://${DISCOVERY_SERVER:localhost}:8761/eureka
   instance:
     instance-id: ${PORT:8080}
 
