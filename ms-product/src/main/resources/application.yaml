@@ -10,7 +10,7 @@ spring:
     consumer:
       group-id: ms-product-group
       auto-offset-reset: latest
-    topics:
+    topic:
       product-validation: product-validation
       product-rollback: product-rollback
 
@@ -22,7 +22,7 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${DATABASE_NAME:postgres}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${DATABASE_NAME:product-db}
     username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD:root}
   jpa:

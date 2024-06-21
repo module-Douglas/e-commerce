@@ -14,6 +14,18 @@ services:
     ports:
       - "27017:27017"
 
+  product-db:
+    image: postgres:latest
+    container_name: postgres_product
+    networks:
+      - commerce
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: product-db
+    ports:
+      - "5432:5432"
+
   kafka:
     container_name: kafka
     image: obsidiandynamics/kafka

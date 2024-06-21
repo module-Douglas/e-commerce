@@ -1,15 +1,19 @@
 package io.github.douglas.ms_product.enums;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
 public enum Topics {
 
     ORCHESTRATOR("orchestrator"),
     PRODUCT_VALIDATION("product-validation"),
-    PRODUCT_ROLLBACK("product-rollback");
+    PRODUCT_ROLLBACK("product-rollback"),
+    REGISTER_INVENTORY("register-inventory");
 
     private final String topic;
+
+    Topics(String topic) {
+        this.topic = topic;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
 }

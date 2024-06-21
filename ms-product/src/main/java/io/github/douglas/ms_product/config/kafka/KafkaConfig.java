@@ -1,6 +1,5 @@
 package io.github.douglas.ms_product.config.kafka;
 
-import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -20,7 +19,6 @@ import static io.github.douglas.ms_product.enums.Topics.*;
 
 @EnableKafka
 @Configuration
-@RequiredArgsConstructor
 public class KafkaConfig {
 
     private static final Integer REPLICAS_COUNT = 1;
@@ -61,6 +59,11 @@ public class KafkaConfig {
     @Bean
     public NewTopic productRollback() {
         return buildTopic(PRODUCT_ROLLBACK.getTopic());
+    }
+
+    @Bean
+    public NewTopic registerInventory() {
+        return buildTopic(REGISTER_INVENTORY.getTopic());
     }
 
     private NewTopic buildTopic(String name) {
