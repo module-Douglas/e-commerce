@@ -1,16 +1,12 @@
 package io.github.douglas.ms_order.dto;
 
-import lombok.*;
-
 import java.util.Set;
 
-@Getter @Setter @Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class OrderRequest {
+public record OrderRequest(
+        String accountId,
+        Long addressId,
+        Set<ProductDTO> products
+) {
 
-    private String accountId;
-    private Long addressId;
-    private Set<ProductDTO> products;
 
 }

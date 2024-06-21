@@ -9,7 +9,6 @@ import io.github.douglas.ms_order.model.entity.Product;
 import io.github.douglas.ms_order.model.repository.OrderRepository;
 import io.github.douglas.ms_order.service.OrderService;
 import io.github.douglas.ms_order.utils.JsonUtil;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -21,7 +20,7 @@ import static io.github.douglas.ms_order.enums.Sources.MS_ORDER;
 import static io.github.douglas.ms_order.enums.Status.PENDING;
 
 @Service
-@RequiredArgsConstructor
+
 public class OrderServiceImpl implements OrderService {
 
     private static final String TRANSACTION_ID_PATTERN = "%s_%s";
@@ -30,25 +29,26 @@ public class OrderServiceImpl implements OrderService {
     private final KafkaProducer kafkaProducer;
     private final JsonUtil jsonUtil;
 
+    public OrderServiceImpl(OrderRepository orderRepository, KafkaProducer kafkaProducer, JsonUtil jsonUtil) {
+        this.orderRepository = orderRepository;
+        this.kafkaProducer = kafkaProducer;
+        this.jsonUtil = jsonUtil;
+    }
+
     @Override
     public OrderRequest createOrder(OrderRequest request) {
-        var products = request.getProducts().stream()
-                .map(Product::of)
+        var products = request.products().stream()
+                .map(Product::new)
                 .collect(Collectors.toSet());
 
-        var order = Order.builder()
-                .transactionId(String.format(TRANSACTION_ID_PATTERN, Instant.now().toEpochMilli(), UUID.randomUUID()))
-                .source(MS_ORDER)
-                .status(PENDING)
-                .createdAt(LocalDateTime.now())
-                .products(products)
-                .accountDetails(AccountDetails.builder()
-                        .userId(UUID.fromString(request.getAccountId()))
-                        .build())
-                .deliveryAddress(DeliveryAddress.builder()
-                        .addressId(request.getAddressId())
-                        .build())
-                .build();
+        var order = new Order();
+        order.setTransactionId(String.format(TRANSACTION_ID_PATTERN, Instant.now().toEpochMilli(), UUID.randomUUID()));
+        order.setProducts(products);
+        order.setCreatedAt(LocalDateTime.now());
+        order.setSource(MS_ORDER);
+        order.setStatus(PENDING);
+        order.setAccountDetails(new AccountDetails(request.accountId()));
+        order.setDeliveryAddress(new DeliveryAddress(request.addressId()));
 
         orderRepository.save(order);
         kafkaProducer.sendEvent(

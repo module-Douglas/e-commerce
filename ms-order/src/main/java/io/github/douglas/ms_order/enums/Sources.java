@@ -1,8 +1,6 @@
 package io.github.douglas.ms_order.enums;
 
-import lombok.AllArgsConstructor;
 
-@AllArgsConstructor
 public enum Sources {
 
     MS_ORDER,
