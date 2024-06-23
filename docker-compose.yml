@@ -2,30 +2,6 @@ version: '3.8'
 
 services:
 
-  order-db:
-    image: mongo:latest
-    container_name: mongo-order
-    restart: always
-    networks:
-      - commerce
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
-    ports:
-      - "27017:27017"
-
-  product-db:
-    image: postgres:latest
-    container_name: postgres_product
-    networks:
-      - commerce
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: product-db
-    ports:
-      - "5432:5432"
-
   kafka:
     container_name: kafka
     image: obsidiandynamics/kafka
@@ -67,6 +43,7 @@ services:
 
   redis-auth:
     image: redis:latest
+    container_name: redis-auth
     restart: on-failure
     ports:
       - "6379:6379"
@@ -78,6 +55,7 @@ services:
 
   redis-product:
     image: redis:latest
+    container_name: redis-product
     restart: on-failure
     ports:
       - "6380:6379"
@@ -86,6 +64,42 @@ services:
       REDIS_PORT: 6380
     networks:
       - commerce
+
+  order-db:
+    image: mongo:latest
+    container_name: mongo-order
+    restart: always
+    networks:
+      - commerce
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports:
+      - "27017:27017"
+
+  product-db:
+    image: postgres:latest
+    container_name: postgres_product
+    networks:
+      - commerce
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: product-db
+    ports:
+      - "5432:5432"
+
+  inventory-db:
+    image: postgres:latest
+    container_name: postgres_inventory
+    networks:
+      - commerce
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: inventory-db
+    ports:
+      - "5433:5432"
 
 networks:
   commerce:
