@@ -1,29 +1,19 @@
 package io.github.douglas.ms_product.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.github.douglas.ms_product.dto.CategoryDTO;
 import jakarta.persistence.*;
-import org.springframework.beans.BeanUtils;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 
 @Entity
-@Table(name = "tb_categories")
-public class Category {
+@Table(name = "tb_validation")
+public class Validation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true)
-    private String name;
-
-    @JsonIgnore
-    @ManyToMany(mappedBy = "categories")
-    private Set<Product> products = new HashSet<>();
-
+    private String orderId;
+    private String transactionId;
+    private Boolean success;
     @Column(updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -39,17 +29,15 @@ public class Category {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public Category() {
+    public Validation() {
 
     }
 
-    public Category(CategoryDTO categoryDTO) {
-        BeanUtils.copyProperties(categoryDTO, this);
-    }
-
-    public Category(Long id, String name) {
+    public Validation(Long id, String orderId, String transactionId, Boolean success) {
         this.id = id;
-        this.name = name;
+        this.orderId = orderId;
+        this.transactionId = transactionId;
+        this.success = success;
     }
 
     public Long getId() {
@@ -60,20 +48,28 @@ public class Category {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getOrderId() {
+        return orderId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 
-    public Set<Product> getProducts() {
-        return products;
+    public String getTransactionId() {
+        return transactionId;
     }
 
-    public void setProducts(Set<Product> products) {
-        this.products = products;
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public Boolean getSuccess() {
+        return success;
+    }
+
+    public void setSuccess(Boolean success) {
+        this.success = success;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -92,4 +88,3 @@ public class Category {
         this.updatedAt = updatedAt;
     }
 }
-

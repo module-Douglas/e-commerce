@@ -5,16 +5,18 @@ import io.github.douglas.ms_product.dto.SupplierDTO;
 import jakarta.persistence.*;
 import org.springframework.beans.BeanUtils;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "tb_suplliers")
 public class Supplier {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
     @Column(unique = true)
     private String name;
     @Column(unique = true)
@@ -27,6 +29,21 @@ public class Supplier {
     @OneToMany(mappedBy = "supplier", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JsonManagedReference
     private Set<Product> products = new HashSet<>();
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    private void prePersist() {
+        this.id = UUID.randomUUID();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
     public Supplier() {
 
@@ -36,7 +53,7 @@ public class Supplier {
         BeanUtils.copyProperties(supplierDTO, this);
     }
 
-    public Supplier(Long id, String name, String cnpj, String email, String phoneNumber) {
+    public Supplier(UUID id, String name, String cnpj, String email, String phoneNumber) {
         this.id = id;
         this.name = name;
         this.cnpj = cnpj;
@@ -44,12 +61,11 @@ public class Supplier {
         this.phoneNumber = phoneNumber;
     }
 
-    public Long getId() {
-
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -91,5 +107,21 @@ public class Supplier {
 
     public void setProducts(Set<Product> products) {
         this.products = products;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

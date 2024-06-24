@@ -2,7 +2,7 @@ package io.github.douglas.ms_order.model.entity;
 
 public class DeliveryAddress {
 
-    private Long addressId;
+    private String addressId;
     private String zipCode;
     private String street;
     private String neighborhood;
@@ -14,11 +14,11 @@ public class DeliveryAddress {
     public DeliveryAddress() {
     }
 
-    public DeliveryAddress(Long addressId) {
+    public DeliveryAddress(String addressId) {
         this.addressId = addressId;
     }
 
-    public DeliveryAddress(Long addressId, String zipCode, String street, String neighborhood, String complement, String number, String city, String state) {
+    public DeliveryAddress(String addressId, String zipCode, String street, String neighborhood, String complement, String number, String city, String state) {
         this.addressId = addressId;
         this.zipCode = zipCode;
         this.street = street;
@@ -29,11 +29,11 @@ public class DeliveryAddress {
         this.state = state;
     }
 
-    public Long getAddressId() {
+    public String getAddressId() {
         return addressId;
     }
 
-    public void setAddressId(Long addressId) {
+    public void setAddressId(String addressId) {
         this.addressId = addressId;
     }
 

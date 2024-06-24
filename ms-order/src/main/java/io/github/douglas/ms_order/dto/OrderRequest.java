@@ -4,7 +4,7 @@ import java.util.Set;
 
 public record OrderRequest(
         String accountId,
-        Long addressId,
+        String addressId,
         Set<ProductDTO> products
 ) {
 

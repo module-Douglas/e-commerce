@@ -1,9 +1,10 @@
 package io.github.douglas.ms_product.dto;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public record RegisterInventoryDTO(
-        Long productId,
+        UUID productId,
         BigDecimal unitValue,
         Long stockAmount
 ) {
