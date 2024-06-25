@@ -8,7 +8,7 @@ public record ProductDTO(
         String description,
         BigDecimal unitValue,
         Long stockAmount,
-        Long supplierId,
+        String supplierId,
         Set<Long> categories
 ) {
 }

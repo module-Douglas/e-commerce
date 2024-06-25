@@ -11,11 +11,13 @@ import io.github.douglas.ms_product.model.repository.ProductRepository;
 import io.github.douglas.ms_product.model.repository.SupplierRepository;
 import io.github.douglas.ms_product.service.ProductService;
 import io.github.douglas.ms_product.utils.JsonUtil;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -68,15 +70,16 @@ public class ProductServiceImpl implements ProductService {
          categories.forEach(
                  category -> {
                      response.add(categoryRepository.findById(category)
-                             .orElseThrow(() -> new RuntimeException("Category not found")));
+                             .orElseThrow(() -> new ResourceNotFoundException(String
+                                     .format("Category not found with id: %s", category))));
                  }
          );
 
          return response;
     }
 
-    private Supplier getSupplier(Long id) {
-        return supplierRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Supplier not found"));
+    private Supplier getSupplier(String id) {
+        return supplierRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Supplier not found with id: %s", id)));
     }
 }

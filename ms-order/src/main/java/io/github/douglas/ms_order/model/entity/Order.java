@@ -28,6 +28,7 @@ public class Order {
     private Set<History> historic;
 
     public Order() {
+
     }
 
     public Order(String id, String transactionId, AccountDetails accountDetails, DeliveryAddress deliveryAddress, BigDecimal totalAmount, Long totalItems, LocalDateTime createdAt, Sources source, Status status, Set<Product> products, Set<History> historic) {

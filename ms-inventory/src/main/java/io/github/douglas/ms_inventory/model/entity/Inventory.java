@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tb_inventory")
@@ -16,6 +17,22 @@ public class Inventory {
     private Long productId;
     private BigDecimal unitValue;
     private Long stockAmount;
+    @Column(updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime createdAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    private void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
     public Inventory() {
 
@@ -63,4 +80,13 @@ public class Inventory {
     public void setStockAmount(Long stockAmount) {
         this.stockAmount = stockAmount;
     }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
 }

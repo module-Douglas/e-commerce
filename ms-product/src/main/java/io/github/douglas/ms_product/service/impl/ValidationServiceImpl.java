@@ -1,6 +1,7 @@
 package io.github.douglas.ms_product.service.impl;
 
 import io.github.douglas.ms_product.broker.KafkaProducer;
+import io.github.douglas.ms_product.config.exception.ValidationException;
 import io.github.douglas.ms_product.dto.event.Event;
 import io.github.douglas.ms_product.dto.event.History;
 import io.github.douglas.ms_product.enums.Status;
@@ -9,6 +10,7 @@ import io.github.douglas.ms_product.model.repository.ProductRepository;
 import io.github.douglas.ms_product.model.repository.ValidationRepository;
 import io.github.douglas.ms_product.service.ValidationService;
 import io.github.douglas.ms_product.utils.JsonUtil;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -71,7 +73,7 @@ public class ValidationServiceImpl implements ValidationService {
         isPresent(event);
         if (validationRepository.existsByOrderIdAndTransactionId(
                 event.id(), event.transactionId()
-        )) throw new RuntimeException("There is another transactionId for this validation");
+        )) throw new ValidationException("There is another transactionId for this validation.");
 
         event.products().forEach(
                 product -> validateProductInformed(product.productId())
@@ -80,11 +82,12 @@ public class ValidationServiceImpl implements ValidationService {
 
     private void isPresent(Event event) {
         if (isEmpty(event.products())) throw new RuntimeException("Product list is empty");
-        if (isEmpty(event.id()) || isEmpty(event.transactionId())) throw new RuntimeException("OrderId and TransactionID must be informed");
+        if (isEmpty(event.id()) || isEmpty(event.transactionId())) throw new ValidationException("OrderId and TransactionID must be informed.");
     }
 
     private void validateProductInformed(String productId) {
-        if (!productRepository.existsById(UUID.fromString(productId))) throw new RuntimeException("Product doesnt exist.");
+        if (!productRepository.existsById(UUID
+                .fromString(productId))) throw new ResourceNotFoundException(String.format("Product not found with id: %s", productId));
     }
 
     private void registerValidation(Event event, Boolean status) {
