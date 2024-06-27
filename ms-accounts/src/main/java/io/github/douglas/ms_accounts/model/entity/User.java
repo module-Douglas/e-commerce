@@ -1,6 +1,7 @@
 package io.github.douglas.ms_accounts.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import io.github.douglas.ms_accounts.dto.RegisterUserDTO;
 import io.github.douglas.ms_accounts.dto.UserDTO;
 import jakarta.persistence.*;
 import org.springframework.beans.BeanUtils;
@@ -58,6 +59,11 @@ public class User {
     public User(UserDTO userDTO) {
         BeanUtils.copyProperties(userDTO, this);
         this.password = new BCryptPasswordEncoder().encode(userDTO.password());
+    }
+
+    public User(RegisterUserDTO registerUserDTO) {
+        BeanUtils.copyProperties(registerUserDTO, this);
+        this.password = new BCryptPasswordEncoder().encode(registerUserDTO.password());
     }
 
     public User(UUID id, String firstName, String lastName, String email, String cpf, String password) {

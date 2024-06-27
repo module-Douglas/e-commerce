@@ -101,6 +101,18 @@ services:
     ports:
       - "5433:5432"
 
+  account-db:
+    image: postgres:latest
+    container_name: postgres_accounts
+    networks:
+      - commerce
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: account-db
+    ports:
+      - "5434:5432"
+
 networks:
   commerce:
     driver: bridge

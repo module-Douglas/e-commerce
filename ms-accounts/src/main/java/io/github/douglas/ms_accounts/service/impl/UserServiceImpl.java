@@ -1,8 +1,8 @@
 package io.github.douglas.ms_accounts.service.impl;
 
+import io.github.douglas.ms_accounts.dto.RegisterUserDTO;
 import io.github.douglas.ms_accounts.dto.RoleDTO;
 import io.github.douglas.ms_accounts.dto.UserDTO;
-import io.github.douglas.ms_accounts.model.entity.Role;
 import io.github.douglas.ms_accounts.model.entity.User;
 import io.github.douglas.ms_accounts.model.repository.RoleRepository;
 import io.github.douglas.ms_accounts.model.repository.UserRepository;
@@ -12,6 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,12 +28,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO register(UserDTO request) {
+    public UserDTO register(RegisterUserDTO request) {
         cpfCheck(request.cpf());
         emailCheck(request.email());
         request.roles().forEach(this::roleCheck);
+
+        var roles = request.roles().stream()
+                .map(role -> roleRepository.findById(role)
+                        .orElseThrow())
+                .collect(Collectors.toSet());
         var user = new User(request);
-        user.setRoles(new HashSet<>());
+        user.setRoles(roles);
 
         return new UserDTO(userRepository.save(user));
     }
@@ -45,9 +51,9 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByEmail(email)) throw new DataIntegrityViolationException("Email already in use. Try to reset your password");
     }
 
-    private void roleCheck(RoleDTO role) {
-        if (!roleRepository.existsById(role.id())) throw new ResourceNotFoundException(String
-                .format("Role not found with id: %s", role.id()));
+    private void roleCheck(Long roleId) {
+        if (!roleRepository.existsById(roleId)) throw new ResourceNotFoundException(String
+                .format("Role not found with id: %s", roleId));
     }
 
 }

@@ -1,10 +1,5 @@
 package io.github.douglas.ms_accounts.enums;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
 public enum Topics {
 
     ORCHESTRATOR("orchestrator"),
@@ -14,4 +9,11 @@ public enum Topics {
 
     private final String topic;
 
+    Topics(String topic) {
+        this.topic = topic;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
 }

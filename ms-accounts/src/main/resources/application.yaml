@@ -1,5 +1,5 @@
 server:
-  port: ${PORT:8080}
+  port: ${PORT:8085}
 
 spring:
   application:
@@ -16,7 +16,7 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${DATABASE_NAME:postgres}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5434}/${DATABASE_NAME:account-db}
     username: ${POSTGRES_USERNAME:postgres}
     password: ${POSTGRES_PASSWORD:root}
   jpa:
@@ -35,9 +35,9 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: ${DISCOVERY_SERVER:localhost}:8761/eureka
+      defaultZone: http://${DISCOVERY_SERVER:localhost}:8761/eureka
   instance:
-    instance-id: ${PORT:8080}
+    instance-id: ${PORT:8085}
 
 logging:
   level:

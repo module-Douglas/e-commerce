@@ -16,6 +16,7 @@ public record UserDTO(
         String password,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
+        Set<AddressDTO> addresses,
         Set<RoleDTO> roles
 ) {
     public UserDTO(User user) {
@@ -28,6 +29,19 @@ public record UserDTO(
                 user.getPassword(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
+                user.getAddresses().stream()
+                        .map(address -> new AddressDTO(
+                                address.getId(),
+                                address.getZipCode(),
+                                address.getStreet(),
+                                address.getNeighborhood(),
+                                address.getComplement(),
+                                address.getNumber(),
+                                address.getCity(),
+                                address.getState(),
+                                address.getCreatedAt(),
+                                address.getUpdatedAt()
+                        )).collect(Collectors.toSet()),
                 user.getRoles().stream()
                         .map(role -> new RoleDTO(
                                 role.getId(),
