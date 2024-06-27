@@ -1,7 +1,6 @@
 package io.github.douglas.ms_accounts.service.impl;
 
 import io.github.douglas.ms_accounts.dto.RegisterUserDTO;
-import io.github.douglas.ms_accounts.dto.RoleDTO;
 import io.github.douglas.ms_accounts.dto.UserDTO;
 import io.github.douglas.ms_accounts.model.entity.User;
 import io.github.douglas.ms_accounts.model.repository.RoleRepository;
@@ -11,8 +10,7 @@ import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +39,12 @@ public class UserServiceImpl implements UserService {
         user.setRoles(roles);
 
         return new UserDTO(userRepository.save(user));
+    }
+
+    @Override
+    public UserDTO getUserDetails(String id) {
+        return new UserDTO(userRepository.findById(UUID.fromString(id))
+                .orElseThrow());
     }
 
     private void cpfCheck(String cpf) {

@@ -6,4 +6,6 @@ import io.github.douglas.ms_accounts.dto.UserDTO;
 public interface UserService {
 
     UserDTO register(RegisterUserDTO request);
+
+    UserDTO getUserDetails(String id);
 }
