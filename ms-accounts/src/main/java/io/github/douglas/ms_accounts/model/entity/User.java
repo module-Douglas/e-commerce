@@ -31,7 +31,7 @@ public class User {
     private LocalDateTime createdAt;
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JsonManagedReference
     private Set<Address> addresses = new HashSet<>();
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

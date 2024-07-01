@@ -29,7 +29,11 @@ public class ValidationServiceImpl implements ValidationService {
     private final JsonUtil jsonUtil;
     private final KafkaProducer kafkaProducer;
 
-    public ValidationServiceImpl(ProductRepository productRepository, ValidationRepository validationRepository, JsonUtil jsonUtil, KafkaProducer kafkaProducer) {
+    public ValidationServiceImpl(
+            ProductRepository productRepository,
+            ValidationRepository validationRepository,
+            JsonUtil jsonUtil,
+            KafkaProducer kafkaProducer) {
         this.productRepository = productRepository;
         this.validationRepository = validationRepository;
         this.jsonUtil = jsonUtil;
@@ -81,7 +85,7 @@ public class ValidationServiceImpl implements ValidationService {
     }
 
     private void isPresent(Event event) {
-        if (isEmpty(event.products())) throw new RuntimeException("Product list is empty");
+        if (isEmpty(event.products())) throw new ValidationException("Product list is empty");
         if (isEmpty(event.id()) || isEmpty(event.transactionId())) throw new ValidationException("OrderId and TransactionID must be informed.");
     }
 
