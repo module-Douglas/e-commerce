@@ -6,15 +6,16 @@ import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "tb_inventory")
 public class Inventory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long productId;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
+    private String productId;
     private BigDecimal unitValue;
     private Long stockAmount;
     @Column(updatable = false)
@@ -42,26 +43,26 @@ public class Inventory {
         BeanUtils.copyProperties(inventoryDTO, this);
     }
 
-    public Inventory(Long id, Long productId, BigDecimal unitValue, Long stockAmount) {
+    public Inventory(UUID id, String productId, BigDecimal unitValue, Long stockAmount) {
         this.id = id;
         this.productId = productId;
         this.unitValue = unitValue;
         this.stockAmount = stockAmount;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public Long getProductId() {
+    public String getProductId() {
         return productId;
     }
 
-    public void setProductId(Long productId) {
+    public void setProductId(String productId) {
         this.productId = productId;
     }
 

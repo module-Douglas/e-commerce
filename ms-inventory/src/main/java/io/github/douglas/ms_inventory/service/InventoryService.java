@@ -5,5 +5,7 @@ import io.github.douglas.ms_inventory.dto.InventoryDTO;
 public interface InventoryService {
     void registerInventory(String payload);
 
-    InventoryDTO findByProductId(Long productId);
+    InventoryDTO findByProductId(String productId);
+
+    void orderUpdate(String payload);
 }

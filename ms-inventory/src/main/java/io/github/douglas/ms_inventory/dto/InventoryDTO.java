@@ -6,12 +6,12 @@ import org.springframework.beans.BeanUtils;
 import java.math.BigDecimal;
 
 public record InventoryDTO(
-        Long id,
-        Long productId,
+        String id,
+        String productId,
         BigDecimal unitValue,
         Long stockAmount
 ) {
     public InventoryDTO(Inventory inventory) {
-        this(inventory.getId(), inventory.getProductId(), inventory.getUnitValue(), inventory.getStockAmount());
+        this(inventory.getId().toString(), inventory.getProductId(), inventory.getUnitValue(), inventory.getStockAmount());
     }
 }
