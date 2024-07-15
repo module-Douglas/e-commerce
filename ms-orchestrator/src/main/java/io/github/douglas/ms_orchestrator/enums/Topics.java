@@ -1,10 +1,6 @@
 package io.github.douglas.ms_orchestrator.enums;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
 public enum Topics {
 
     START_SAGA("start-saga"),
@@ -21,4 +17,12 @@ public enum Topics {
     SEND_EMAIL("send-email");
 
     private final String topic;
+
+    Topics(String topic) {
+        this.topic = topic;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
 }

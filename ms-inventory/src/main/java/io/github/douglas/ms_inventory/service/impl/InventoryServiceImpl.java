@@ -19,8 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 import static io.github.douglas.ms_inventory.enums.Sources.MS_INVENTORY;
-import static io.github.douglas.ms_inventory.enums.Status.FAIL;
-import static io.github.douglas.ms_inventory.enums.Status.SUCCESS;
+import static io.github.douglas.ms_inventory.enums.Status.*;
 import static java.lang.String.format;
 
 @Service
@@ -70,6 +69,20 @@ public class InventoryServiceImpl implements InventoryService {
         }
     }
 
+    @Override
+    public void rollbackInventory(Event event) {
+        try {
+            returnInventoryToPrevious(event);
+            kafkaProducer.sendEvent(
+                    jsonUtil.toJson(addHistory(event, "Rollback successfully executed.", SUCCESS))
+            );
+        } catch (Exception e) {
+            kafkaProducer.sendEvent(
+                    jsonUtil.toJson(addHistory(event, format("Rollback couldn't be executed: %s", e.getMessage()), FAIL))
+            );
+        }
+    }
+
     private void handleSuccess(Event event) {
         kafkaProducer.sendEvent(
                 jsonUtil.toJson(addHistory(event, "Product disposability successfully validated.", SUCCESS))
@@ -78,7 +91,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     private void handleFail(Event event, String message) {
         kafkaProducer.sendEvent(
-                jsonUtil.toJson(addHistory(event, message, FAIL))
+                jsonUtil.toJson(addHistory(event, message, ROLLBACK_PENDING))
         );
     }
 
@@ -130,5 +143,15 @@ public class InventoryServiceImpl implements InventoryService {
     private Event addHistory(Event event, String message, Status status) {
         var history = new History(MS_INVENTORY, status, message, LocalDateTime.now());
         return event.addHistory(history);
+    }
+
+    private void returnInventoryToPrevious(Event event) {
+        inventoryHistoricRepository
+                .findByOrderIdAndTransactionId(event.id(), event.transactionId())
+                .forEach(inventoryHistoric -> {
+                    var inventory = inventoryHistoric.getInventory();
+                    inventory.setStockAmount(inventoryHistoric.getOldQuantity());
+                    inventoryRepository.save(inventory);
+                });
     }
 }
