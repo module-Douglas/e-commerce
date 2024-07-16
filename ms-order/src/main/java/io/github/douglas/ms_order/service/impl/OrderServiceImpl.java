@@ -30,9 +30,8 @@ import static java.lang.String.format;
 public class OrderServiceImpl implements OrderService {
 
     private static final String TRANSACTION_ID_PATTERN = "%s_%s";
+
     private static final Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
-
-
     private final OrderRepository orderRepository;
     private final KafkaProducer kafkaProducer;
     private final JsonUtil jsonUtil;
@@ -91,7 +90,9 @@ public class OrderServiceImpl implements OrderService {
 
     private BigDecimal calculateTotalAmount(OrderRequest request) {
         BigDecimal sum = BigDecimal.ZERO;
-        request.products().forEach(product -> sum.add(product.unitValue()));
+        for (var product : request.products()) {
+            sum = sum.add(product.unitValue());
+        }
         return sum;
     }
 

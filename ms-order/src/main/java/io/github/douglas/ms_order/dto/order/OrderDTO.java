@@ -13,8 +13,8 @@ import java.util.Set;
 public record OrderDTO(
         String id,
         String transactionId,
-        AccountDetailsDTO accountDetailsDTO,
-        DeliveryAddressDTO deliveryAddressDTO,
+        AccountDetailsDTO accountDetails,
+        DeliveryAddressDTO deliveryAddress,
         BigDecimal totalAmount,
         Long totalItems,
         LocalDateTime createdAt,
@@ -24,9 +24,4 @@ public record OrderDTO(
         Set<ProductDTO> products,
         Set<HistoryDTO> historic
 ) {
-    public OrderDTO addHistory(HistoryDTO history, Sources currentSource, Status orderStatus) {
-        var newHistoric = new HashSet<HistoryDTO>(this.historic);
-        newHistoric.add(history);
-        return new OrderDTO(id, transactionId, accountDetailsDTO, deliveryAddressDTO, totalAmount, totalItems, createdAt, source, currentSource, orderStatus, products, newHistoric);
-    }
 }
