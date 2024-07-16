@@ -20,7 +20,7 @@ public class KafkaConsumer {
             topics = "${spring.kafka.topic.inventory-validation}"
     )
     private void consumeInventoryValidation(String payload) {
-
+        inventoryService.orderUpdate(payload);
     }
 
     @KafkaListener(
@@ -28,7 +28,7 @@ public class KafkaConsumer {
             topics = "${spring.kafka.topic.inventory-rollback}"
     )
     private void consumeInventoryRollback(String payload) {
-
+        inventoryService.rollbackInventory(payload);
     }
 
     @KafkaListener(

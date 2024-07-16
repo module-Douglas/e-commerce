@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 public class Product {
 
-    private Long productId;
+    private String productId;
     private BigDecimal unitValue;
     private Long quantity;
 
@@ -19,17 +19,17 @@ public class Product {
         BeanUtils.copyProperties(productDTO, this);
     }
 
-    public Product(Long productId, BigDecimal unitValue, Long quantity) {
+    public Product(String productId, BigDecimal unitValue, Long quantity) {
         this.productId = productId;
         this.unitValue = unitValue;
         this.quantity = quantity;
     }
 
-    public Long getProductId() {
+    public String getProductId() {
         return productId;
     }
 
-    public void setProductId(Long productId) {
+    public void setProductId(String productId) {
         this.productId = productId;
     }
 

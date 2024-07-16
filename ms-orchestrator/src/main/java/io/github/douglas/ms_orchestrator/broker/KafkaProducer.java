@@ -1,5 +1,6 @@
 package io.github.douglas.ms_orchestrator.broker;
 
+import io.github.douglas.ms_orchestrator.config.exception.ValidationException;
 import io.github.douglas.ms_orchestrator.enums.Topics;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ public class KafkaProducer {
         try {
             kafkaTemplate.send(topic.getTopic(), payload);
         } catch(Exception e) {
-
+            throw new ValidationException(e.getMessage());
         }
     }
 

@@ -5,7 +5,7 @@ public enum Sources {
     MS_ORCHESTRATOR,
     MS_ACCOUNTS,
     MS_INVENTORY,
-    MS_PRODUCTS,
+    MS_PRODUCT,
     MS_ORDER;
 
 }

@@ -4,5 +4,6 @@ public enum Status {
 
     SUCCESS,
     FAIL,
-    PENDING;
+    PENDING,
+    ROLLBACK_PENDING;
 }

@@ -1,7 +1,7 @@
 package io.github.douglas.ms_orchestrator.dto.event;
 
 
-import io.github.douglas.ms_orchestrator.enums.EventSource;
+import io.github.douglas.ms_orchestrator.enums.Sources;
 import io.github.douglas.ms_orchestrator.enums.Status;
 
 import java.math.BigDecimal;
@@ -17,18 +17,15 @@ public record Event(
         BigDecimal totalAmount,
         Long totalItems,
         LocalDateTime createdAt,
-        EventSource source,
+        Sources source,
+        Sources currentSource,
         Status status,
         Set<Product> products,
         Set<History> historic
 ) {
-    public Event addHistory(History history) {
-        var newHistoric = new HashSet<History>();
-        if (this.historic == null) {
-            newHistoric.add(history);
-            return new Event(id, transactionId, accountDetails, deliveryAddress, totalAmount, totalItems, createdAt, source, status, products, newHistoric);
-        }
-        this.historic.add(history);
-        return this;
+    public Event addHistory(History history, Sources currentSource, Status orderStatus) {
+        var newHistoric = new HashSet<History>(this.historic);
+        newHistoric.add(history);
+        return new Event(id, transactionId, accountDetails, deliveryAddress, totalAmount, totalItems, createdAt, source, currentSource, orderStatus, products, newHistoric);
     }
 }

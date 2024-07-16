@@ -70,11 +70,12 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public void rollbackInventory(Event event) {
+    public void rollbackInventory(String payload) {
+        var event = jsonUtil.toEvent(payload);
         try {
             returnInventoryToPrevious(event);
             kafkaProducer.sendEvent(
-                    jsonUtil.toJson(addHistory(event, "Rollback successfully executed.", SUCCESS))
+                    jsonUtil.toJson(addHistory(event, "Rollback successfully executed.", FAIL))
             );
         } catch (Exception e) {
             kafkaProducer.sendEvent(
@@ -142,7 +143,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     private Event addHistory(Event event, String message, Status status) {
         var history = new History(MS_INVENTORY, status, message, LocalDateTime.now());
-        return event.addHistory(history);
+        return event.addHistory(history, MS_INVENTORY, status);
     }
 
     private void returnInventoryToPrevious(Event event) {

@@ -114,7 +114,7 @@ public class ValidationServiceImpl implements ValidationService {
 
     private Event addHistory(Event event, String message, Status status) {
         var history = new History(MS_PRODUCT, status, message, LocalDateTime.now());
-        return event.addHistory(history);
+        return event.addHistory(history, MS_PRODUCT, status);
     }
 
 

@@ -23,15 +23,16 @@ public class Order {
     private Long totalItems;
     private LocalDateTime createdAt;
     private Sources source;
+    private Sources currentSource;
     private Status status;
-    private Set<Product> products = new HashSet<>();
-    private Set<History> historic;
+    private Set<Product> products;
+    private Set<History> historic = new HashSet<>();
 
     public Order() {
 
     }
 
-    public Order(String id, String transactionId, AccountDetails accountDetails, DeliveryAddress deliveryAddress, BigDecimal totalAmount, Long totalItems, LocalDateTime createdAt, Sources source, Status status, Set<Product> products, Set<History> historic) {
+    public Order(String id, String transactionId, AccountDetails accountDetails, DeliveryAddress deliveryAddress, BigDecimal totalAmount, Long totalItems, LocalDateTime createdAt, Sources source, Sources currentSource, Status status, Set<Product> products, Set<History> historic) {
         this.id = id;
         this.transactionId = transactionId;
         this.accountDetails = accountDetails;
@@ -40,6 +41,7 @@ public class Order {
         this.totalItems = totalItems;
         this.createdAt = createdAt;
         this.source = source;
+        this.currentSource = currentSource;
         this.status = status;
         this.products = products;
         this.historic = historic;
@@ -107,6 +109,14 @@ public class Order {
 
     public void setSource(Sources source) {
         this.source = source;
+    }
+
+    public Sources getCurrentSource() {
+        return currentSource;
+    }
+
+    public void setCurrentSource(Sources currentSource) {
+        this.currentSource = currentSource;
     }
 
     public Status getStatus() {

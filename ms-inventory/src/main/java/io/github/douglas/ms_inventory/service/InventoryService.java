@@ -10,5 +10,5 @@ public interface InventoryService {
 
     void orderUpdate(String payload);
 
-    void rollbackInventory(Event event);
+    void rollbackInventory(String payload);
 }

@@ -2,13 +2,10 @@ package io.github.douglas.ms_orchestrator.saga;
 
 import io.github.douglas.ms_orchestrator.config.exception.ValidationException;
 import io.github.douglas.ms_orchestrator.dto.event.Event;
-import io.github.douglas.ms_orchestrator.dto.event.History;
 import io.github.douglas.ms_orchestrator.enums.Topics;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Objects;
 
 import static io.github.douglas.ms_orchestrator.saga.SagaHandler.*;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -36,13 +33,6 @@ public class SagaExecutionController {
         var source = row[EVENT_SOURCE_INDEX];
         var status = row[SAGA_STATUS_INDEX];
 
-        final Iterator<History> itr = event.historic().iterator();
-        History lastHistory = itr.next();
-
-        while (itr.hasNext()) {
-            lastHistory = itr.next();
-        }
-
-        return lastHistory.source().equals(source) && lastHistory.status().equals(status);
+        return event.currentSource().equals(source) && event.status().equals(status);
     }
 }

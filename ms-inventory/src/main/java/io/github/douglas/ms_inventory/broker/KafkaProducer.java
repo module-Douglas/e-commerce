@@ -1,5 +1,6 @@
 package io.github.douglas.ms_inventory.broker;
 
+import io.github.douglas.ms_inventory.config.exception.ValidationException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +21,7 @@ public class KafkaProducer {
         try {
             kafkaTemplate.send(ORCHESTRATOR.getTopic(), payload);
         } catch(Exception e) {
-
+            throw new ValidationException(e.getMessage());
         }
     }
 

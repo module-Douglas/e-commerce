@@ -47,6 +47,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCreatedAt(LocalDateTime.now());
         order.setSource(MS_ORDER);
         order.setStatus(PENDING);
+        order.setCurrentSource(MS_ORDER);
         order.setAccountDetails(new AccountDetails(request.accountId()));
         order.setDeliveryAddress(new DeliveryAddress(request.addressId()));
 
@@ -56,6 +57,12 @@ public class OrderServiceImpl implements OrderService {
         );
 
         return request;
+    }
+
+    @Override
+    public void updateOrderStatus(String payload) {
+        var order = jsonUtil.toOrder(payload);
+        orderRepository.save(order);
     }
 
 }

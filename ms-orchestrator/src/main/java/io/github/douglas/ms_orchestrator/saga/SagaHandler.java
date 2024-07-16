@@ -1,7 +1,6 @@
 package io.github.douglas.ms_orchestrator.saga;
 
-import static io.github.douglas.ms_orchestrator.enums.EventSource.*;
-import static io.github.douglas.ms_orchestrator.enums.EventSource.ORCHESTRATOR;
+import static io.github.douglas.ms_orchestrator.enums.Sources.*;
 import static io.github.douglas.ms_orchestrator.enums.Status.*;
 import static io.github.douglas.ms_orchestrator.enums.Topics.*;
 
@@ -12,8 +11,8 @@ public final class SagaHandler {
     }
 
     public static Object[][] SAGA_HANDLER = {
-            {ORCHESTRATOR, SUCCESS, PRODUCT_VALIDATION},
-            {ORCHESTRATOR, FAIL, FINISH_FAIL},
+            {MS_ORCHESTRATOR, SUCCESS, PRODUCT_VALIDATION},
+            {MS_ORCHESTRATOR, FAIL, FINISH_FAIL},
 
             {MS_PRODUCT, ROLLBACK_PENDING, PRODUCT_ROLLBACK},
             {MS_PRODUCT, FAIL, FINISH_FAIL},

@@ -62,7 +62,7 @@ public class ProductServiceImpl implements ProductService {
                 jsonUtil.toJson(registerInventory)
         );
 
-        return request;
+        return request.generateDTO(product);
     }
 
     private Set<Category> getCategories(Set<Long> categories) {

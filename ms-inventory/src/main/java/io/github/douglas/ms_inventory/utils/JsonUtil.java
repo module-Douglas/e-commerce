@@ -1,6 +1,7 @@
 package io.github.douglas.ms_inventory.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.douglas.ms_inventory.config.exception.ValidationException;
 import io.github.douglas.ms_inventory.dto.event.Event;
 import io.github.douglas.ms_inventory.model.entity.Inventory;
 import org.springframework.stereotype.Component;
@@ -34,7 +35,7 @@ public class JsonUtil {
         try {
             return objectMapper.readValue(payload, Event.class);
         } catch (Exception e) {
-            return null;
+            throw new ValidationException(e.getMessage());
         }
     }
 }

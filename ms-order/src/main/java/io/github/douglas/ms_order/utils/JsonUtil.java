@@ -1,6 +1,7 @@
 package io.github.douglas.ms_order.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.douglas.ms_order.config.exception.ValidationException;
 import io.github.douglas.ms_order.model.entity.Order;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +26,7 @@ public class JsonUtil {
         try {
             return objectMapper.readValue(json, Order.class);
         } catch (Exception e) {
-            return null;
+            throw new ValidationException(e.getMessage());
         }
     }
 }

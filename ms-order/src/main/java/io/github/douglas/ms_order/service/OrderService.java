@@ -4,4 +4,6 @@ import io.github.douglas.ms_order.dto.OrderRequest;
 
 public interface OrderService {
     OrderRequest createOrder(OrderRequest request);
+
+    void updateOrderStatus(String payload);
 }
