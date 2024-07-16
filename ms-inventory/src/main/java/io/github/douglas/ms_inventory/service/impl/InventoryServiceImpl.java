@@ -14,6 +14,8 @@ import io.github.douglas.ms_inventory.model.repository.InventoryRepository;
 import io.github.douglas.ms_inventory.service.InventoryService;
 import io.github.douglas.ms_inventory.utils.JsonUtil;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,6 +27,8 @@ import static java.lang.String.format;
 @Service
 public class InventoryServiceImpl implements InventoryService {
 
+
+    private static final Logger log = LoggerFactory.getLogger(InventoryServiceImpl.class);
     private final InventoryRepository inventoryRepository;
     private final JsonUtil jsonUtil;
     private final InventoryHistoricRepository inventoryHistoricRepository;
@@ -153,6 +157,8 @@ public class InventoryServiceImpl implements InventoryService {
                     var inventory = inventoryHistoric.getInventory();
                     inventory.setStockAmount(inventoryHistoric.getOldQuantity());
                     inventoryRepository.save(inventory);
+                    log.info("Restored inventory {} for order {} from {} to {}",
+                            inventory.getId(), event.id(), inventoryHistoric.getNewQuantity(), inventoryHistoric.getOldQuantity());
                 });
     }
 }

@@ -22,4 +22,15 @@ public class ResourceExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<?> handleResourceNotFoundException(ResourceNotFoundException e, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new StandardError(
+                        request.getRequestURI(),
+                        HttpStatus.NOT_FOUND.value(),
+                        e.getMessage(),
+                        LocalDateTime.now()
+                ));
+    }
+
 }

@@ -2,6 +2,7 @@ package io.github.douglas.ms_order.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.douglas.ms_order.config.exception.ValidationException;
+import io.github.douglas.ms_order.dto.order.OrderDTO;
 import io.github.douglas.ms_order.model.entity.Order;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,14 @@ public class JsonUtil {
     public Order toOrder(String json) {
         try {
             return objectMapper.readValue(json, Order.class);
+        } catch (Exception e) {
+            throw new ValidationException(e.getMessage());
+        }
+    }
+
+    public OrderDTO toOrderDTO(Order order) {
+        try {
+            return objectMapper.convertValue(order, OrderDTO.class);
         } catch (Exception e) {
             throw new ValidationException(e.getMessage());
         }

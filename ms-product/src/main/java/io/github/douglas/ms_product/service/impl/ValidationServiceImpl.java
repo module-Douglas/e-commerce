@@ -11,6 +11,8 @@ import io.github.douglas.ms_product.model.repository.ValidationRepository;
 import io.github.douglas.ms_product.service.ValidationService;
 import io.github.douglas.ms_product.utils.JsonUtil;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,6 +26,8 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @Service
 public class ValidationServiceImpl implements ValidationService {
 
+
+    private static final Logger log = LoggerFactory.getLogger(ValidationServiceImpl.class);
     private final ProductRepository productRepository;
     private final ValidationRepository validationRepository;
     private final JsonUtil jsonUtil;
@@ -48,6 +52,7 @@ public class ValidationServiceImpl implements ValidationService {
             registerValidation(event, true);
             handleSuccess(event);
         } catch (Exception e) {
+            log.error("Error trying to validate products: ", e);
             handleFail(event, e.getMessage());
         }
     }
