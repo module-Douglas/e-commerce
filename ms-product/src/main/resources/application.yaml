@@ -13,6 +13,7 @@ spring:
     topic:
       product-validation: product-validation
       product-rollback: product-rollback
+      link-inventory: link-inventory
 
   data:
     redis:

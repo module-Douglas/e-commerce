@@ -3,6 +3,7 @@ package io.github.douglas.ms_inventory.service.impl;
 import io.github.douglas.ms_inventory.broker.KafkaProducer;
 import io.github.douglas.ms_inventory.config.exception.ValidationException;
 import io.github.douglas.ms_inventory.dto.InventoryDTO;
+import io.github.douglas.ms_inventory.dto.LinkInventory;
 import io.github.douglas.ms_inventory.dto.event.Event;
 import io.github.douglas.ms_inventory.dto.event.History;
 import io.github.douglas.ms_inventory.dto.event.Product;
@@ -47,8 +48,11 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public void registerInventory(String payload) {
-        inventoryRepository.save(
+        var inventory = inventoryRepository.save(
                 jsonUtil.toInventory(payload)
+        );
+        kafkaProducer.sendInventoryLink(
+                jsonUtil.toJson(new LinkInventory(inventory.getProductId(), inventory.getId().toString()))
         );
     }
 

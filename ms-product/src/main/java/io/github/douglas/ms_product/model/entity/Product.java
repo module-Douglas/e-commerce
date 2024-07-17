@@ -17,6 +17,8 @@ public class Product {
     private UUID id;
     private String name;
     private String description;
+    private String brand;
+    private String inventoryId;
     @ManyToMany
     @JoinTable(name = "tb_products_categories",
     joinColumns = @JoinColumn(name = "product_id"),
@@ -47,9 +49,10 @@ public class Product {
 
     }
 
-    public Product(String name, String description, Set<Category> categories, Supplier supplier) {
+    public Product(String name, String description, String brand, Set<Category> categories, Supplier supplier) {
         this.name = name;
         this.description = description;
+        this.brand = brand;
         this.categories = categories;
         this.supplier = supplier;
     }
@@ -78,6 +81,22 @@ public class Product {
         this.description = description;
     }
 
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getInventoryId() {
+        return inventoryId;
+    }
+
+    public void setInventoryId(String inventoryId) {
+        this.inventoryId = inventoryId;
+    }
+
     public Set<Category> getCategories() {
         return categories;
     }
@@ -93,8 +112,6 @@ public class Product {
     public void setSupplier(Supplier supplier) {
         this.supplier = supplier;
     }
-
-
 
     public LocalDateTime getCreatedAt() {
         return createdAt;

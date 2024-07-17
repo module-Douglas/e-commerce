@@ -6,7 +6,8 @@ public enum Topics {
     ORCHESTRATOR("orchestrator"),
     INVENTORY_VALIDATION("inventory-validation"),
     INVENTORY_ROLLBACK("inventory-rollback"),
-    SEND_EMAIL("send-email");
+    SEND_EMAIL("send-email"),
+    LINK_INVENTORY("link-inventory");
 
     private final String topic;
 

@@ -1,5 +1,6 @@
 package io.github.douglas.ms_product.broker;
 
+import io.github.douglas.ms_product.service.ProductService;
 import io.github.douglas.ms_product.service.ValidationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +14,11 @@ public class KafkaConsumer {
 
     private static final Logger log = LoggerFactory.getLogger(KafkaConsumer.class);
     private final ValidationService validationService;
+    private final ProductService productService;
 
-    public KafkaConsumer(ValidationService validationService) {
+    public KafkaConsumer(ValidationService validationService, ProductService productService) {
         this.validationService = validationService;
+        this.productService = productService;
     }
 
     @KafkaListener(
@@ -36,5 +39,12 @@ public class KafkaConsumer {
         validationService.realizeRollback(payload);
     }
 
+    @KafkaListener(
+            groupId = "${spring.kafka.consumer.group-id}",
+            topics = "${spring.kafka.topic.link-inventory}"
+    )
+    public void consumeLinkInventory(String payload) {
+        productService.linkInventory(payload);
+    }
 
 }

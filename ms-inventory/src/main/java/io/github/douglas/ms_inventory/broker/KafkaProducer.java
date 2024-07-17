@@ -6,8 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import static io.github.douglas.ms_inventory.enums.Topics.ORCHESTRATOR;
-import static io.github.douglas.ms_inventory.enums.Topics.SEND_EMAIL;
+import static io.github.douglas.ms_inventory.enums.Topics.*;
 
 
 @Component
@@ -27,6 +26,14 @@ public class KafkaProducer {
         } catch(Exception e) {
             log.error("Error trying to send data to topic {} with data {}", ORCHESTRATOR.getTopic(), payload, e);
             throw new ValidationException(e.getMessage());
+        }
+    }
+
+    public void sendInventoryLink(String payload) {
+        try {
+            kafkaTemplate.send(LINK_INVENTORY.getTopic(), payload);
+        } catch (Exception e) {
+
         }
     }
 

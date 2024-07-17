@@ -1,6 +1,7 @@
 package io.github.douglas.ms_product.service.impl;
 
 import io.github.douglas.ms_product.broker.KafkaProducer;
+import io.github.douglas.ms_product.config.exception.ResourceNotFoundException;
 import io.github.douglas.ms_product.dto.ProductDTO;
 import io.github.douglas.ms_product.dto.RegisterInventoryDTO;
 import io.github.douglas.ms_product.model.entity.Category;
@@ -11,7 +12,6 @@ import io.github.douglas.ms_product.model.repository.ProductRepository;
 import io.github.douglas.ms_product.model.repository.SupplierRepository;
 import io.github.douglas.ms_product.service.ProductService;
 import io.github.douglas.ms_product.utils.JsonUtil;
-import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -49,6 +49,7 @@ public class ProductServiceImpl implements ProductService {
         var product = productRepository.save(new Product(
                 request.name(),
                 request.description(),
+                request.brand(),
                 categories,
                 supplier
         ));
@@ -63,6 +64,16 @@ public class ProductServiceImpl implements ProductService {
         );
 
         return request.generateDTO(product);
+    }
+
+    @Override
+    public void linkInventory(String payload) {
+        var link = jsonUtil.toLinkInventory(payload);
+        var product = productRepository.findById(UUID.fromString(link.productId()))
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Product not found with id: %s", link.productId())));
+
+        product.setInventoryId(link.inventoryId());
+        productRepository.save(product);
     }
 
     private Set<Category> getCategories(Set<Long> categories) {
