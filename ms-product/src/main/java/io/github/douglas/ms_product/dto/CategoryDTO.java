@@ -2,8 +2,10 @@ package io.github.douglas.ms_product.dto;
 
 import io.github.douglas.ms_product.model.entity.Category;
 
+import java.util.UUID;
+
 public record CategoryDTO(
-        Long id,
+        UUID id,
         String name
 ) {
     public CategoryDTO generateDTO(Category category) {

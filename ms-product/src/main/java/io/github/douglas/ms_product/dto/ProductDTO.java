@@ -6,6 +6,7 @@ import io.github.douglas.ms_product.model.entity.Product;
 
 import java.math.BigDecimal;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public record ProductDTO(
@@ -17,7 +18,7 @@ public record ProductDTO(
         BigDecimal unitValue,
         Long stockAmount,
         String supplierId,
-        Set<Long> categories
+        Set<UUID> categories
 ) {
     public ProductDTO generateDTO(Product product) {
         return new ProductDTO(

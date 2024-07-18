@@ -76,7 +76,7 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
     }
 
-    private Set<Category> getCategories(Set<Long> categories) {
+    private Set<Category> getCategories(Set<UUID> categories) {
          Set<Category> response = new HashSet<>();
          categories.forEach(
                  category -> {

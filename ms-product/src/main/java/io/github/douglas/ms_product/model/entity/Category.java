@@ -8,14 +8,15 @@ import org.springframework.beans.BeanUtils;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "tb_categories")
 public class Category {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
     @Column(unique = true)
     private String name;
     @JsonIgnore
@@ -46,16 +47,16 @@ public class Category {
         BeanUtils.copyProperties(categoryDTO, this);
     }
 
-    public Category(Long id, String name) {
+    public Category(UUID id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
