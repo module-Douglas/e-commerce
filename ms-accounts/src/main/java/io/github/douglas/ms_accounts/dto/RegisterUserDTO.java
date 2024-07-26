@@ -1,6 +1,7 @@
 package io.github.douglas.ms_accounts.dto;
 
 import java.util.Set;
+import java.util.UUID;
 
 public record RegisterUserDTO(
         String firstName,
@@ -8,6 +9,6 @@ public record RegisterUserDTO(
         String email,
         String cpf,
         String password,
-        Set<Long> roles
+        Set<UUID> roles
 ) {
 }

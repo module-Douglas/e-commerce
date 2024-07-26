@@ -5,7 +5,6 @@ import io.github.douglas.ms_accounts.dto.RegisterUserDTO;
 import io.github.douglas.ms_accounts.dto.UserDTO;
 import jakarta.persistence.*;
 import org.springframework.beans.BeanUtils;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -56,14 +55,14 @@ public class User {
 
     }
 
-    public User(UserDTO userDTO) {
+    public User(UserDTO userDTO, String password) {
         BeanUtils.copyProperties(userDTO, this);
-        this.password = new BCryptPasswordEncoder().encode(userDTO.password());
+        this.password = password;
     }
 
-    public User(RegisterUserDTO registerUserDTO) {
+    public User(RegisterUserDTO registerUserDTO, String password) {
         BeanUtils.copyProperties(registerUserDTO, this);
-        this.password = new BCryptPasswordEncoder().encode(registerUserDTO.password());
+        this.password = password;
     }
 
     public User(UUID id, String firstName, String lastName, String email, String cpf, String password) {
