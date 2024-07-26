@@ -12,10 +12,26 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
+        - id: ms-accounts
+          uri: lb://ms-accounts
+          predicates:
+            - Method=POST
+            - Path=/accounts/login, /accounts/register, /accounts/refresh-token
+
+        - id: ms-accounts
+          uri: lb://ms-accounts
+          predicates:
+            - Method=GET
+            - Path=/accounts/{id}
+          filters:
+            - CommonUserFilter
+
+  jwt:
+    secret: ${JWT_SECRET:cc9303afb79d48524a21c9e5894c3f8598a252148bcb7e7306d174f4609519a201b400d591d253a26ba40e47ed65558ef3c80f2864b36ac626399b50e3f4fff9}
 
 eureka:
   client:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone: ${DISCOVERY_SERVER:localhost}/8761/eureka
+      defaultZone: http://${DISCOVERY_SERVER:localhost:}8761/eureka

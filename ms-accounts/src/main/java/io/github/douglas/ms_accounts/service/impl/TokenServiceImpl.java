@@ -1,7 +1,5 @@
 package io.github.douglas.ms_accounts.service.impl;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import io.github.douglas.ms_accounts.config.exception.ValidationException;
 import io.github.douglas.ms_accounts.dto.AccessTokenDTO;
 import io.github.douglas.ms_accounts.dto.RefreshTokenDTO;
@@ -9,6 +7,9 @@ import io.github.douglas.ms_accounts.model.entity.RefreshToken;
 import io.github.douglas.ms_accounts.model.entity.User;
 import io.github.douglas.ms_accounts.model.repository.RefreshTokenRepository;
 import io.github.douglas.ms_accounts.service.TokenService;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.apache.kafka.common.errors.AuthenticationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -39,12 +40,13 @@ public class TokenServiceImpl implements TokenService {
         try {
             var claims = generateClaims(user);
 
-            var accessToken = JWT.create()
-                    .withIssuer(MS_ACCOUNTS.name())
-                    .withSubject(user.getEmail())
-                    .withClaim("roles", claims)
-                    .withExpiresAt(ACCESS_TOKEN_DURATION)
-                    .sign(Algorithm.HMAC512(JWT_SECRET));
+            var accessToken = Jwts.builder()
+                    .claim("roles", claims)
+                    .setIssuer(MS_ACCOUNTS.name())
+                    .setSubject(user.getEmail())
+                    .setExpiration(ACCESS_TOKEN_DURATION)
+                    .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(JWT_SECRET)))
+                    .compact();
 
             var refreshToken = generateRefreshToken(user);
             refreshTokenRepository.save(refreshToken);
