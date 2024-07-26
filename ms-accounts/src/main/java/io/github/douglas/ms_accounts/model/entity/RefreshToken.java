@@ -28,6 +28,11 @@ public class RefreshToken {
 
     }
 
+    public RefreshToken(String refreshToken, User user) {
+        this.refreshToken = refreshToken;
+        this.user = user;
+    }
+
     public RefreshToken(UUID id, String refreshToken, User user) {
         this.id = id;
         this.refreshToken = refreshToken;

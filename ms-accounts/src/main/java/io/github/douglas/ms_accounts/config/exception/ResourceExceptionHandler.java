@@ -1,6 +1,7 @@
 package io.github.douglas.ms_accounts.config.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.kafka.common.errors.AuthenticationException;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,17 @@ public class ResourceExceptionHandler {
                 .body(new StandardError(
                         request.getRequestURI(),
                         HttpStatus.NOT_FOUND.value(),
+                        e.getMessage(),
+                        LocalDateTime.now()
+                ));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<?> handleAuthenticationException(AuthenticationException e, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new StandardError(
+                        request.getRequestURI(),
+                        HttpStatus.BAD_REQUEST.value(),
                         e.getMessage(),
                         LocalDateTime.now()
                 ));
