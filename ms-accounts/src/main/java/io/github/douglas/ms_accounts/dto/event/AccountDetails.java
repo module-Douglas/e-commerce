@@ -1,14 +1,16 @@
 package io.github.douglas.ms_accounts.dto.event;
 
-import io.github.douglas.ms_accounts.model.entity.User;
+import io.github.douglas.ms_accounts.model.entity.Account;
+
+import java.util.UUID;
 
 public record AccountDetails(
-        String userId,
+        UUID userId,
         String email
 ) {
-    public static AccountDetails setAccountDetails(User user) {
+    public static AccountDetails setAccountDetails(Account user) {
         return new AccountDetails(
-                user.getId().toString(),
+                user.getId(),
                 user.getEmail()
         );
     }

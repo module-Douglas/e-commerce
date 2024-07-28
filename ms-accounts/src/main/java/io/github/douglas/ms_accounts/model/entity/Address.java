@@ -28,9 +28,9 @@ public class Address {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "account_id", referencedColumnName = "id")
     @JsonManagedReference
-    private User user;
+    private Account account;
 
     @PrePersist
     private void prePersist() {
@@ -134,11 +134,11 @@ public class Address {
         return updatedAt;
     }
 
-    public User getUser() {
-        return user;
+    public Account getUser() {
+        return account;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(Account account) {
+        this.account = account;
     }
 }

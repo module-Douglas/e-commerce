@@ -6,7 +6,7 @@ import io.github.douglas.ms_accounts.dto.event.Event;
 import io.github.douglas.ms_accounts.dto.event.History;
 import io.github.douglas.ms_accounts.enums.Status;
 import io.github.douglas.ms_accounts.model.entity.Validation;
-import io.github.douglas.ms_accounts.model.repository.UserRepository;
+import io.github.douglas.ms_accounts.model.repository.AccountRepository;
 import io.github.douglas.ms_accounts.model.repository.ValidationRepository;
 import io.github.douglas.ms_accounts.service.ValidationService;
 import io.github.douglas.ms_accounts.utils.JsonUtil;
@@ -28,17 +28,17 @@ public class ValidationServiceImpl implements ValidationService {
 
     private static final Logger log = LoggerFactory.getLogger(ValidationServiceImpl.class);
     private final ValidationRepository validationRepository;
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
     private final JsonUtil jsonUtil;
     private final KafkaProducer kafkaProducer;
 
     public ValidationServiceImpl(
             ValidationRepository validationRepository,
-            UserRepository userRepository,
+            AccountRepository accountRepository,
             JsonUtil jsonUtil,
             KafkaProducer kafkaProducer) {
         this.validationRepository = validationRepository;
-        this.userRepository = userRepository;
+        this.accountRepository = accountRepository;
         this.jsonUtil = jsonUtil;
         this.kafkaProducer = kafkaProducer;
     }
@@ -93,12 +93,12 @@ public class ValidationServiceImpl implements ValidationService {
     }
 
     private Event validateUserAndAddress(Event event) {
-        var user = userRepository.findById(UUID.fromString(event.accountDetails().userId()))
+        var user = accountRepository.findById(event.accountDetails().userId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         String.format("User not found with id: %s", event.accountDetails().userId())));
 
         var validatedAddress = user.getAddresses().stream()
-                .filter(address -> address.getId().equals(UUID.fromString(event.deliveryAddress().addressId())))
+                .filter(address -> address.getId().equals(event.deliveryAddress().addressId()))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException(
                         String.format("Address with id: %s not found for this user", event.deliveryAddress().addressId())));

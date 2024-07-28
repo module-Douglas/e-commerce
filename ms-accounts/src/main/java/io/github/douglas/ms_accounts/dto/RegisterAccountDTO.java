@@ -3,7 +3,7 @@ package io.github.douglas.ms_accounts.dto;
 import java.util.Set;
 import java.util.UUID;
 
-public record RegisterUserDTO(
+public record RegisterAccountDTO(
         String firstName,
         String lastName,
         String email,

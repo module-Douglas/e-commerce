@@ -1,15 +1,11 @@
 package io.github.douglas.ms_accounts.service.impl;
 
-import com.ctc.wstx.shaded.msv_core.util.StringPair;
-import io.github.douglas.ms_accounts.dto.AccessTokenDTO;
-import io.github.douglas.ms_accounts.dto.LoginDTO;
-import io.github.douglas.ms_accounts.dto.RegisterUserDTO;
-import io.github.douglas.ms_accounts.dto.UserDTO;
-import io.github.douglas.ms_accounts.model.entity.User;
+import io.github.douglas.ms_accounts.dto.*;
+import io.github.douglas.ms_accounts.model.entity.Account;
 import io.github.douglas.ms_accounts.model.repository.RoleRepository;
-import io.github.douglas.ms_accounts.model.repository.UserRepository;
+import io.github.douglas.ms_accounts.model.repository.AccountRepository;
 import io.github.douglas.ms_accounts.service.TokenService;
-import io.github.douglas.ms_accounts.service.UserService;
+import io.github.douglas.ms_accounts.service.AccountService;
 import org.apache.kafka.common.errors.AuthenticationException;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,28 +18,27 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class AccountServiceImpl implements AccountService {
 
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
 
-
-    public UserServiceImpl(
-            UserRepository userRepository,
+    public AccountServiceImpl(
+            AccountRepository accountRepository,
             RoleRepository roleRepository,
             PasswordEncoder passwordEncoder,
             TokenService tokenService
     ) {
-        this.userRepository = userRepository;
+        this.accountRepository = accountRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
     }
 
     @Override
-    public UserDTO register(RegisterUserDTO request) {
+    public AccountDTO register(RegisterAccountDTO request) {
         cpfCheck(request.cpf());
         emailCheck(request.email());
         request.roles().forEach(this::roleCheck);
@@ -52,44 +47,52 @@ public class UserServiceImpl implements UserService {
                 .map(role -> roleRepository.findById(role)
                         .orElseThrow())
                 .collect(Collectors.toSet());
-        var user = new User(request, passwordEncoder.encode(request.password()));
-        user.setRoles(roles);
+        var account = new Account(request, passwordEncoder.encode(request.password()));
+        account.setRoles(roles);
 
-        return new UserDTO(userRepository.save(user));
+        return new AccountDTO(accountRepository.save(account));
     }
 
     @Override
     public AccessTokenDTO login(LoginDTO loginRequest) {
-        var user = userRepository.findByEmail(loginRequest.email())
+        var account = accountRepository.findByEmail(loginRequest.email())
                 .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with email: %s", loginRequest.email())));
 
-        if (!validatePassword(loginRequest.password(), user)) {
+        if (!validatePassword(loginRequest.password(), account)) {
             throw new AuthenticationException("Invalid password. Try again or reset you password.");
         }
 
-        return tokenService.generateTokens(user);
+        return tokenService.generateTokens(account);
     }
 
     @Override
-    public UserDTO getUserDetails(String id) {
-        return new UserDTO(userRepository.findById(UUID.fromString(id))
+    public AccountDTO getUserDetails(UUID id) {
+        return new AccountDTO(accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with id: %s", id))));
     }
 
+    @Override
+    public void updatePassword(UpdatePasswordDTO request) {
+        var account = accountRepository.findById(request.userId())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with id: %s", request.userId())));
+        account.setPassword(passwordEncoder.encode(request.newPassword()));
+        accountRepository.save(account);
+    }
+
     private void cpfCheck(String cpf) {
-        if (userRepository.existsByCpf(cpf)) throw new DataIntegrityViolationException("CPF already registered.");
+        if (accountRepository.existsByCpf(cpf)) throw new DataIntegrityViolationException("CPF already registered.");
     }
 
     private void emailCheck(String email) {
-        if (userRepository.existsByEmail(email)) throw new DataIntegrityViolationException("Email already in use. Try to reset your password");
+        if (accountRepository.existsByEmail(email)) throw new DataIntegrityViolationException("Email already in use. Try to reset your password");
     }
 
     private void roleCheck(UUID roleId) {
         if (!roleRepository.existsById(roleId)) throw new ResourceNotFoundException(format("Role not found with id: %s", roleId));
     }
 
-    private Boolean validatePassword(String password, User user) {
-        return passwordEncoder.matches(password, user.getPassword());
+    private Boolean validatePassword(String password, Account account) {
+        return passwordEncoder.matches(password, account.getPassword());
     }
 
 }

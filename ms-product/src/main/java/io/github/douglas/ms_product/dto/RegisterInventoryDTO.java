@@ -8,8 +8,4 @@ public record RegisterInventoryDTO(
         BigDecimal unitValue,
         Long stockAmount
 ) {
-
-    public RegisterInventoryDTO{
-
-    }
 }

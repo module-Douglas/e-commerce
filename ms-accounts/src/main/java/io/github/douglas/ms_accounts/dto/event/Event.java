@@ -4,7 +4,7 @@ package io.github.douglas.ms_accounts.dto.event;
 import io.github.douglas.ms_accounts.enums.Sources;
 import io.github.douglas.ms_accounts.enums.Status;
 import io.github.douglas.ms_accounts.model.entity.Address;
-import io.github.douglas.ms_accounts.model.entity.User;
+import io.github.douglas.ms_accounts.model.entity.Account;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,7 +31,7 @@ public record Event(
         return new Event(id, transactionId, accountDetails, deliveryAddress, totalAmount, totalItems, createdAt, source, currentSource, orderStatus, products, newHistoric);
     }
 
-    public Event setAccountDetails(Address address, User user) {
+    public Event setAccountDetails(Address address, Account user) {
         return new Event(id, transactionId, AccountDetails.setAccountDetails(user), DeliveryAddress.setAddress(address), totalAmount, totalItems, createdAt, source, currentSource, status, products, historic);
     }
 }

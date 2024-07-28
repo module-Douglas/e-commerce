@@ -26,7 +26,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @Service
 public class ValidationServiceImpl implements ValidationService {
 
-
     private static final Logger log = LoggerFactory.getLogger(ValidationServiceImpl.class);
     private final ProductRepository productRepository;
     private final ValidationRepository validationRepository;
@@ -94,9 +93,9 @@ public class ValidationServiceImpl implements ValidationService {
         if (isEmpty(event.id()) || isEmpty(event.transactionId())) throw new ValidationException("OrderId and TransactionID must be informed.");
     }
 
-    private void validateProductInformed(String productId) {
-        if (!productRepository.existsById(UUID
-                .fromString(productId))) throw new ResourceNotFoundException(String.format("Product not found with id: %s", productId));
+    private void validateProductInformed(UUID productId) {
+        if (!productRepository.existsById(productId))
+            throw new ResourceNotFoundException(String.format("Product not found with id: %s", productId));
     }
 
     private void registerValidation(Event event, Boolean status) {

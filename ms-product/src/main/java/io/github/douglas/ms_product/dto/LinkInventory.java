@@ -1,7 +1,9 @@
 package io.github.douglas.ms_product.dto;
 
+import java.util.UUID;
+
 public record LinkInventory(
-        String productId,
-        String inventoryId
+        UUID productId,
+        UUID inventoryId
 ) {
 }

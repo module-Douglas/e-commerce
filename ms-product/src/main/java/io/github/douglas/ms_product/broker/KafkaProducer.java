@@ -12,7 +12,6 @@ import static io.github.douglas.ms_product.enums.Topics.REGISTER_INVENTORY;
 @Component
 public class KafkaProducer {
 
-
     private static final Logger log = LoggerFactory.getLogger(KafkaProducer.class);
     private final KafkaTemplate<String, String> kafkaTemplate;
 

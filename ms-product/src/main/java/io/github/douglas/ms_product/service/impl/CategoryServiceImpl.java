@@ -17,7 +17,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDTO registerCategory(CategoryDTO request) {
-        return request.generateDTO(
+        return new CategoryDTO(
                 categoryRepository.save(new Category(request)));
     }
 }

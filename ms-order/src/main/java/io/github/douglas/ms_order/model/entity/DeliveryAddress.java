@@ -1,8 +1,10 @@
 package io.github.douglas.ms_order.model.entity;
 
+import java.util.UUID;
+
 public class DeliveryAddress {
 
-    private String addressId;
+    private UUID addressId;
     private String zipCode;
     private String street;
     private String neighborhood;
@@ -14,11 +16,11 @@ public class DeliveryAddress {
     public DeliveryAddress() {
     }
 
-    public DeliveryAddress(String addressId) {
+    public DeliveryAddress(UUID addressId) {
         this.addressId = addressId;
     }
 
-    public DeliveryAddress(String addressId, String zipCode, String street, String neighborhood, String complement, String number, String city, String state) {
+    public DeliveryAddress(UUID addressId, String zipCode, String street, String neighborhood, String complement, String number, String city, String state) {
         this.addressId = addressId;
         this.zipCode = zipCode;
         this.street = street;
@@ -29,11 +31,11 @@ public class DeliveryAddress {
         this.state = state;
     }
 
-    public String getAddressId() {
+    public UUID getAddressId() {
         return addressId;
     }
 
-    public void setAddressId(String addressId) {
+    public void setAddressId(UUID addressId) {
         this.addressId = addressId;
     }
 

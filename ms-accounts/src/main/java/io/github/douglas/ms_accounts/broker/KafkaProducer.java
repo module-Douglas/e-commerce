@@ -11,7 +11,6 @@ import static io.github.douglas.ms_accounts.enums.Topics.SEND_EMAIL;
 @Component
 public class KafkaProducer {
 
-
     private static final Logger log = LoggerFactory.getLogger(KafkaProducer.class);
     private final KafkaTemplate<String, String> kafkaTemplate;
 

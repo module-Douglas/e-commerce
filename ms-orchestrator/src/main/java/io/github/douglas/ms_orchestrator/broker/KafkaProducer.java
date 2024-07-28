@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class KafkaProducer {
 
-
     private static final Logger log = LoggerFactory.getLogger(KafkaProducer.class);
     private final KafkaTemplate<String, String> kafkaTemplate;
 

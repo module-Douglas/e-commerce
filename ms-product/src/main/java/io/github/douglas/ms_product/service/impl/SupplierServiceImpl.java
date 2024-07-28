@@ -17,7 +17,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     public SupplierDTO registerSupplier(SupplierDTO request) {
-        return request.generateDTO(
+        return new SupplierDTO(
                 supplierRepository.save(new Supplier(request)));
     }
 

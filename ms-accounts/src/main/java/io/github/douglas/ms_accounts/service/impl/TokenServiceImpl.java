@@ -4,7 +4,7 @@ import io.github.douglas.ms_accounts.config.exception.ValidationException;
 import io.github.douglas.ms_accounts.dto.AccessTokenDTO;
 import io.github.douglas.ms_accounts.dto.RefreshTokenDTO;
 import io.github.douglas.ms_accounts.model.entity.RefreshToken;
-import io.github.douglas.ms_accounts.model.entity.User;
+import io.github.douglas.ms_accounts.model.entity.Account;
 import io.github.douglas.ms_accounts.model.repository.RefreshTokenRepository;
 import io.github.douglas.ms_accounts.service.TokenService;
 import io.jsonwebtoken.Jwts;
@@ -36,7 +36,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public AccessTokenDTO generateTokens(User user) {
+    public AccessTokenDTO generateTokens(Account user) {
         try {
             var claims = generateClaims(user);
 
@@ -71,14 +71,14 @@ public class TokenServiceImpl implements TokenService {
         return generateTokens(refreshToken.getUser());
     }
 
-    private ArrayList<String> generateClaims(User user) {
+    private ArrayList<String> generateClaims(Account user) {
         ArrayList<String> claims = new ArrayList<>();
 
         user.getRoles().forEach(role -> claims.add(role.getName()));
         return claims;
     }
 
-    private RefreshToken generateRefreshToken(User user) {
+    private RefreshToken generateRefreshToken(Account user) {
         var refreshToken = refreshTokenRepository.findByUser(user);
         refreshToken.ifPresent(refreshTokenRepository::delete);
 

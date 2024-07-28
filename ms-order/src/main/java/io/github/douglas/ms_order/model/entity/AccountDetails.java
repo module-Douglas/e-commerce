@@ -1,27 +1,29 @@
 package io.github.douglas.ms_order.model.entity;
 
+import java.util.UUID;
+
 public class AccountDetails {
 
-    private String userId;
+    private UUID userId;
     private String email;
 
     public AccountDetails() {
     }
 
-    public AccountDetails(String userId) {
+    public AccountDetails(UUID userId) {
         this.userId = userId;
     }
 
-    public AccountDetails(String userId, String email) {
+    public AccountDetails(UUID userId, String email) {
         this.userId = userId;
         this.email = email;
     }
 
-    public String getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 

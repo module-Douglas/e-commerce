@@ -2,41 +2,43 @@ package io.github.douglas.ms_accounts.resource;
 
 import io.github.douglas.ms_accounts.dto.LoginDTO;
 import io.github.douglas.ms_accounts.dto.RefreshTokenDTO;
-import io.github.douglas.ms_accounts.dto.RegisterUserDTO;
+import io.github.douglas.ms_accounts.dto.RegisterAccountDTO;
 import io.github.douglas.ms_accounts.service.TokenService;
-import io.github.douglas.ms_accounts.service.UserService;
+import io.github.douglas.ms_accounts.service.AccountService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/accounts")
-public class UserController {
+public class AccountController {
 
-    private final UserService userService;
+    private final AccountService accountService;
     private final TokenService tokenService;
 
-    public UserController(UserService userService, TokenService tokenService) {
-        this.userService = userService;
+    public AccountController(AccountService accountService, TokenService tokenService) {
+        this.accountService = accountService;
         this.tokenService = tokenService;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterUserDTO request) {
+    public ResponseEntity<?> registerUser(@RequestBody RegisterAccountDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(userService.register(request));
+                .body(accountService.register(request));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserDetails(@PathVariable String id) {
+    public ResponseEntity<?> getUserDetails(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(userService.getUserDetails(id));
+                .body(accountService.getUserDetails(id));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO request) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(userService.login(request));
+                .body(accountService.login(request));
     }
 
     @PostMapping("/refresh-token")

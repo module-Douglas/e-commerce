@@ -17,7 +17,7 @@ public class RefreshToken {
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    private Account user;
 
     @PrePersist
     private void prePersist() {
@@ -28,12 +28,12 @@ public class RefreshToken {
 
     }
 
-    public RefreshToken(String refreshToken, User user) {
+    public RefreshToken(String refreshToken, Account user) {
         this.refreshToken = refreshToken;
         this.user = user;
     }
 
-    public RefreshToken(UUID id, String refreshToken, User user) {
+    public RefreshToken(UUID id, String refreshToken, Account user) {
         this.id = id;
         this.refreshToken = refreshToken;
         this.user = user;
@@ -55,11 +55,11 @@ public class RefreshToken {
         this.refreshToken = refreshToken;
     }
 
-    public User getUser() {
+    public Account getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(Account user) {
         this.user = user;
     }
 

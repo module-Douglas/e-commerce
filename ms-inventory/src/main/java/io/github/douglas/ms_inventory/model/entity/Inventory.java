@@ -15,7 +15,7 @@ public class Inventory {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
-    private String productId;
+    private UUID productId;
     private BigDecimal unitValue;
     private Long stockAmount;
     @Column(updatable = false)
@@ -43,7 +43,7 @@ public class Inventory {
         BeanUtils.copyProperties(inventoryDTO, this);
     }
 
-    public Inventory(UUID id, String productId, BigDecimal unitValue, Long stockAmount) {
+    public Inventory(UUID id, UUID productId, BigDecimal unitValue, Long stockAmount) {
         this.id = id;
         this.productId = productId;
         this.unitValue = unitValue;
@@ -58,11 +58,11 @@ public class Inventory {
         this.id = id;
     }
 
-    public String getProductId() {
+    public UUID getProductId() {
         return productId;
     }
 
-    public void setProductId(String productId) {
+    public void setProductId(UUID productId) {
         this.productId = productId;
     }
 

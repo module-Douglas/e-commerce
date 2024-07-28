@@ -1,13 +1,13 @@
 package io.github.douglas.ms_accounts.dto;
 
-import io.github.douglas.ms_accounts.model.entity.User;
+import io.github.douglas.ms_accounts.model.entity.Account;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public record UserDTO(
+public record AccountDTO(
         UUID id,
         String firstName,
         String lastName,
@@ -19,7 +19,7 @@ public record UserDTO(
         Set<AddressDTO> addresses,
         Set<RoleDTO> roles
 ) {
-    public UserDTO(User user) {
+    public AccountDTO(Account user) {
         this(
                 user.getId(),
                 user.getFirstName(),

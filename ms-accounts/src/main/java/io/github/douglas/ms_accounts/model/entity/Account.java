@@ -1,8 +1,8 @@
 package io.github.douglas.ms_accounts.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import io.github.douglas.ms_accounts.dto.RegisterUserDTO;
-import io.github.douglas.ms_accounts.dto.UserDTO;
+import io.github.douglas.ms_accounts.dto.RegisterAccountDTO;
+import io.github.douglas.ms_accounts.dto.AccountDTO;
 import jakarta.persistence.*;
 import org.springframework.beans.BeanUtils;
 
@@ -12,8 +12,8 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "tb_users")
-public class User {
+@Table(name = "tb_accounts")
+public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -30,12 +30,12 @@ public class User {
     private LocalDateTime createdAt;
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JsonManagedReference
     private Set<Address> addresses = new HashSet<>();
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "tb_user_roles",
-    joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+    @JoinTable(name = "tb_accounts_roles",
+    joinColumns = @JoinColumn(name = "account_id", referencedColumnName = "id"),
     inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private Set<Role> roles;
 
@@ -51,21 +51,21 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public User() {
+    public Account() {
 
     }
 
-    public User(UserDTO userDTO, String password) {
-        BeanUtils.copyProperties(userDTO, this);
+    public Account(AccountDTO accountDTO, String password) {
+        BeanUtils.copyProperties(accountDTO, this);
         this.password = password;
     }
 
-    public User(RegisterUserDTO registerUserDTO, String password) {
-        BeanUtils.copyProperties(registerUserDTO, this);
+    public Account(RegisterAccountDTO registerAccountDTO, String password) {
+        BeanUtils.copyProperties(registerAccountDTO, this);
         this.password = password;
     }
 
-    public User(UUID id, String firstName, String lastName, String email, String cpf, String password) {
+    public Account(UUID id, String firstName, String lastName, String email, String cpf, String password) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;

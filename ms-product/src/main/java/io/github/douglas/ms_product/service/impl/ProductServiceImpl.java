@@ -14,8 +14,10 @@ import io.github.douglas.ms_product.service.ProductService;
 import io.github.douglas.ms_product.utils.JsonUtil;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.math.BigDecimal;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -45,7 +47,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO registerProduct(RegisterProductDTO request) {
+    public URI registerProduct(RegisterProductDTO request) {
         var categories = getCategories(request.categories());
         var supplier = getSupplier(request.supplierId());
 
@@ -66,13 +68,14 @@ public class ProductServiceImpl implements ProductService {
                 jsonUtil.toJson(registerInventory)
         );
 
-        return new ProductDTO(product);
+        return ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(product.getId()).toUri();
     }
 
     @Override
     public void linkInventory(String payload) {
         var link = jsonUtil.toLinkInventory(payload);
-        var product = productRepository.findById(UUID.fromString(link.productId()))
+        var product = productRepository.findById(link.inventoryId())
                 .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s", link.productId())));
 
         product.setInventoryId(link.inventoryId());
@@ -80,8 +83,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO getProductDetails(String id) {
-        var product = productRepository.findById(UUID.fromString(id))
+    public ProductDTO getProductDetails(UUID id) {
+        var product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s", id)));
 
         return new ProductDTO(product);

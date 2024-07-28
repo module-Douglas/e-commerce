@@ -18,7 +18,7 @@ public class Product {
     private String name;
     private String description;
     private String brand;
-    private String inventoryId;
+    private UUID inventoryId;
     @ManyToMany
     @JoinTable(name = "tb_products_categories",
     joinColumns = @JoinColumn(name = "product_id"),
@@ -89,11 +89,11 @@ public class Product {
         this.brand = brand;
     }
 
-    public String getInventoryId() {
+    public UUID getInventoryId() {
         return inventoryId;
     }
 
-    public void setInventoryId(String inventoryId) {
+    public void setInventoryId(UUID inventoryId) {
         this.inventoryId = inventoryId;
     }
 

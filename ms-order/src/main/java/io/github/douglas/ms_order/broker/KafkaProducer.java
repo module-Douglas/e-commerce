@@ -12,7 +12,6 @@ import static io.github.douglas.ms_order.enums.Topics.START_SAGA;
 @Component
 public class KafkaProducer {
 
-
     private static final Logger log = LoggerFactory.getLogger(KafkaProducer.class);
     private final KafkaTemplate<String, String> kafkaTemplate;
 

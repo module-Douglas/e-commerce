@@ -2,20 +2,28 @@ package io.github.douglas.ms_product.dto;
 
 import io.github.douglas.ms_product.model.entity.Supplier;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 public record SupplierDTO(
-        String id,
+        UUID id,
         String name,
         String cnpj,
         String email,
-        String phoneNumber
+        String phoneNumber,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
+
 ) {
-    public SupplierDTO generateDTO(Supplier supplier) {
-        return new SupplierDTO(
-                supplier.getId().toString(),
+    public SupplierDTO(Supplier supplier) {
+        this(
+                supplier.getId(),
                 supplier.getName(),
                 supplier.getCnpj(),
                 supplier.getEmail(),
-                supplier.getPhoneNumber()
+                supplier.getPhoneNumber(),
+                supplier.getCreatedAt(),
+                supplier.getUpdatedAt()
         );
     }
 }

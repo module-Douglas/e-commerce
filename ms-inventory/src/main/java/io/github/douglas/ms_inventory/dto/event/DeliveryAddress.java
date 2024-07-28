@@ -1,7 +1,9 @@
 package io.github.douglas.ms_inventory.dto.event;
 
+import java.util.UUID;
+
 public record DeliveryAddress(
-        String addressId,
+        UUID addressId,
         String zipCode,
         String street,
         String neighborhood,

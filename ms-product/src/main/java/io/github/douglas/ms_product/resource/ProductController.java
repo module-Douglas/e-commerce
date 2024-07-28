@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/product")
 public class ProductController {
@@ -23,7 +25,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getProductDetails(@PathVariable String id) {
+    public ResponseEntity<?> getProductDetails(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.getProductDetails(id));
     }

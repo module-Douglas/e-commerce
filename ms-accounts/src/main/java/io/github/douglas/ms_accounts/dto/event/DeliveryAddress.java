@@ -2,8 +2,10 @@ package io.github.douglas.ms_accounts.dto.event;
 
 import io.github.douglas.ms_accounts.model.entity.Address;
 
+import java.util.UUID;
+
 public record DeliveryAddress(
-        String addressId,
+        UUID addressId,
         String zipCode,
         String street,
         String neighborhood,
@@ -14,7 +16,7 @@ public record DeliveryAddress(
 ) {
     public static DeliveryAddress setAddress(Address address) {
         return new DeliveryAddress(
-                address.getId().toString(),
+                address.getId(),
                 address.getZipCode(),
                 address.getStreet(),
                 address.getNeighborhood(),

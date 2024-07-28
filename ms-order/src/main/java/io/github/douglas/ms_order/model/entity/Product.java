@@ -4,11 +4,12 @@ import io.github.douglas.ms_order.dto.ProductDTO;
 import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 
 public class Product {
 
-    private String productId;
+    private UUID productId;
     private BigDecimal unitValue;
     private Long quantity;
 
@@ -19,17 +20,17 @@ public class Product {
         BeanUtils.copyProperties(productDTO, this);
     }
 
-    public Product(String productId, BigDecimal unitValue, Long quantity) {
+    public Product(UUID productId, BigDecimal unitValue, Long quantity) {
         this.productId = productId;
         this.unitValue = unitValue;
         this.quantity = quantity;
     }
 
-    public String getProductId() {
+    public UUID getProductId() {
         return productId;
     }
 
-    public void setProductId(String productId) {
+    public void setProductId(UUID productId) {
         this.productId = productId;
     }
 

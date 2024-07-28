@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static io.github.douglas.ms_inventory.enums.Sources.MS_INVENTORY;
 import static io.github.douglas.ms_inventory.enums.Status.*;
@@ -52,12 +53,12 @@ public class InventoryServiceImpl implements InventoryService {
                 jsonUtil.toInventory(payload)
         );
         kafkaProducer.sendInventoryLink(
-                jsonUtil.toJson(new LinkInventory(inventory.getProductId(), inventory.getId().toString()))
+                jsonUtil.toJson(new LinkInventory(inventory.getProductId(), inventory.getId()))
         );
     }
 
     @Override
-    public InventoryDTO findByProductId(String productId) {
+    public InventoryDTO findByProductId(UUID productId) {
         return new InventoryDTO(
                 inventoryRepository.findByProductId(productId)
                         .orElseThrow(() -> new RuntimeException("Product not found"))
@@ -107,7 +108,7 @@ public class InventoryServiceImpl implements InventoryService {
     private void startValidation(Event event) {
         if (inventoryHistoricRepository.existsByOrderIdAndTransactionId(
                 event.id(), event.transactionId()
-        )) throw new ValidationException("There is another transactionId for this validation.");
+        )) throw new ValidationException(format("There is another transactionId for this validation: %s", event.id()));
     }
 
     private void registerInventoryHistoric(Event event) {
@@ -144,7 +145,7 @@ public class InventoryServiceImpl implements InventoryService {
         );
     }
 
-    private Inventory getInventoryByProductId(String productId) {
+    private Inventory getInventoryByProductId(UUID productId) {
         return inventoryRepository.findByProductId(productId)
                 .orElseThrow(() -> new ResourceNotFoundException(format("Inventory not found for id: %s", productId)));
     }

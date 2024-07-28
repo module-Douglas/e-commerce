@@ -25,18 +25,10 @@ public class Category {
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime updatedAt;
 
     @PrePersist
     private void prePersist() {
         this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
     }
 
     public Category() {
@@ -80,8 +72,5 @@ public class Category {
         return createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
 }
 

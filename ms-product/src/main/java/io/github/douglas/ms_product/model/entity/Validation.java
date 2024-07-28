@@ -3,14 +3,15 @@ package io.github.douglas.ms_product.model.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "tb_validation")
 public class Validation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
     private String orderId;
     private String transactionId;
     private Boolean success;
@@ -35,18 +36,18 @@ public class Validation {
 
     }
 
-    public Validation(Long id, String orderId, String transactionId, Boolean success) {
+    public Validation(UUID id, String orderId, String transactionId, Boolean success) {
         this.id = id;
         this.orderId = orderId;
         this.transactionId = transactionId;
         this.success = success;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
