@@ -24,7 +24,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getOrderById(@PathVariable String id) {
+    public ResponseEntity<?> getOrderById(@PathVariable("id") String id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(orderService.getOrderDetails(id));
     }

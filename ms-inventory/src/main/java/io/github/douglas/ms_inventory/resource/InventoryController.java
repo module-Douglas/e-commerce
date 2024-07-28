@@ -17,10 +17,16 @@ public class InventoryController {
         this.inventoryService = inventoryService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getByProductId(@PathVariable("id") UUID id) {
+    @GetMapping("/product/{id}")
+    public ResponseEntity<?> getInventoryDetailsByProductId(@PathVariable("id") UUID id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(inventoryService.findByProductId(id));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getInventoryDetails(@PathVariable("id") UUID id) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(inventoryService.findById(id));
     }
 
 }

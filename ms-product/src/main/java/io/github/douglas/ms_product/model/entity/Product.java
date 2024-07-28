@@ -49,6 +49,10 @@ public class Product {
 
     }
 
+    public Product(String name) {
+        this.name = name;
+    }
+
     public Product(String name, String description, String brand, Set<Category> categories, Supplier supplier) {
         this.name = name;
         this.description = description;

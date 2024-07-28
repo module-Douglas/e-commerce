@@ -13,12 +13,17 @@ import io.github.douglas.ms_product.model.repository.SupplierRepository;
 import io.github.douglas.ms_product.service.ProductService;
 import io.github.douglas.ms_product.utils.JsonUtil;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -88,6 +93,21 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s", id)));
 
         return new ProductDTO(product);
+    }
+
+    @Override
+    public PageImpl<ProductDTO> findByName(String name, Pageable pageRequest) {
+        List<ProductDTO> response = productRepository
+                .findAll(Example.of(new Product(name),
+                        ExampleMatcher
+                                .matching()
+                                .withIgnoreCase()
+                                .withIgnoreNullValues()
+                                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)), pageRequest)
+                .stream().map(ProductDTO::new).toList();
+
+        return new PageImpl<>(response, pageRequest, response.size());
+
     }
 
     private Set<Category> getCategories(Set<UUID> categories) {

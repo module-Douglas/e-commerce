@@ -30,7 +30,7 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserDetails(@PathVariable UUID id) {
+    public ResponseEntity<?> getUserDetails(@PathVariable("id") UUID id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(accountService.getUserDetails(id));
     }

@@ -93,6 +93,14 @@ public class InventoryServiceImpl implements InventoryService {
         }
     }
 
+    @Override
+    public InventoryDTO findById(UUID id) {
+        return new InventoryDTO(
+                inventoryRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException(format("Inventory not found with id: %s", id)))
+        );
+    }
+
     private void handleSuccess(Event event) {
         kafkaProducer.sendEvent(
                 jsonUtil.toJson(addHistory(event, "Product disposability successfully validated.", SUCCESS))

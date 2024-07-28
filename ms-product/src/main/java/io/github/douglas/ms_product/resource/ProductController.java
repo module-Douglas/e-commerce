@@ -2,6 +2,7 @@ package io.github.douglas.ms_product.resource;
 
 import io.github.douglas.ms_product.dto.RegisterProductDTO;
 import io.github.douglas.ms_product.service.ProductService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +26,14 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getProductDetails(@PathVariable UUID id) {
+    public ResponseEntity<?> getProductDetails(@PathVariable("id") UUID id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.getProductDetails(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllProductsLike(String name, Pageable pageRequest) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(productService.findByName(name, pageRequest));
     }
 }
