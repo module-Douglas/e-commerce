@@ -1,7 +1,7 @@
 package io.github.douglas.ms_notification.service;
 
-import io.github.douglas.ms_notification.dto.EmailRequest;
+import io.github.douglas.ms_notification.dto.EmailRequestDTO;
 
 public interface EmailService {
-    void sendEmail(EmailRequest request);
+    void sendEmail(EmailRequestDTO request);
 }

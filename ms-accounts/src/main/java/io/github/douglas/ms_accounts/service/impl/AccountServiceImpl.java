@@ -1,40 +1,55 @@
 package io.github.douglas.ms_accounts.service.impl;
 
+import io.github.douglas.ms_accounts.broker.KafkaProducer;
 import io.github.douglas.ms_accounts.dto.*;
 import io.github.douglas.ms_accounts.model.entity.Account;
+import io.github.douglas.ms_accounts.model.entity.ResetCode;
+import io.github.douglas.ms_accounts.model.repository.ResetCodeRepository;
 import io.github.douglas.ms_accounts.model.repository.RoleRepository;
 import io.github.douglas.ms_accounts.model.repository.AccountRepository;
 import io.github.douglas.ms_accounts.service.TokenService;
 import io.github.douglas.ms_accounts.service.AccountService;
+import io.github.douglas.ms_accounts.utils.JsonUtil;
 import org.apache.kafka.common.errors.AuthenticationException;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
 
 @Service
 public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
+    private final ResetCodeRepository resetCodeRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final KafkaProducer kafkaProducer;
+    private final JsonUtil jsonUtil;
 
     public AccountServiceImpl(
             AccountRepository accountRepository,
+            ResetCodeRepository resetCodeRepository,
             RoleRepository roleRepository,
             PasswordEncoder passwordEncoder,
-            TokenService tokenService
+            TokenService tokenService,
+            KafkaProducer kafkaProducer,
+            JsonUtil jsonUtil
     ) {
         this.accountRepository = accountRepository;
+        this.resetCodeRepository = resetCodeRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
+        this.kafkaProducer = kafkaProducer;
+        this.jsonUtil = jsonUtil;
     }
 
     @Override
@@ -72,11 +87,21 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void updatePassword(UpdatePasswordDTO request) {
-        var account = accountRepository.findById(request.userId())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with id: %s", request.userId())));
-        account.setPassword(passwordEncoder.encode(request.newPassword()));
-        accountRepository.save(account);
+    public ResetCodeDTO requestResetPassword(ResetPasswordDTO request) {
+        var code = 100_000 + (int)(Math.random() * ((999_999 - 100_000) + 1));
+        var resetCode = new ResetCode(
+                valueOf(code),
+                request.email(),
+                LocalDateTime.now().plusMinutes(3)
+        );
+
+        resetCodeRepository.save(resetCode);
+        var message = format("Your password reset code is: %s", code);
+        kafkaProducer.sendMail(
+                jsonUtil.toJson(new EmailRequestDTO(resetCode.getAccountEmail(), message))
+        );
+
+        return new ResetCodeDTO(resetCode);
     }
 
     private void cpfCheck(String cpf) {

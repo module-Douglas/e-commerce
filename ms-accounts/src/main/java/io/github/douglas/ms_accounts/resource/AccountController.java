@@ -3,6 +3,7 @@ package io.github.douglas.ms_accounts.resource;
 import io.github.douglas.ms_accounts.dto.LoginDTO;
 import io.github.douglas.ms_accounts.dto.RefreshTokenDTO;
 import io.github.douglas.ms_accounts.dto.RegisterAccountDTO;
+import io.github.douglas.ms_accounts.dto.ResetPasswordDTO;
 import io.github.douglas.ms_accounts.service.TokenService;
 import io.github.douglas.ms_accounts.service.AccountService;
 import org.springframework.http.HttpStatus;
@@ -46,5 +47,12 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(tokenService.generateTokensByRefreshToken(request));
     }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> requestResetPassword(@RequestBody ResetPasswordDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(accountService.requestResetPassword(request));
+    }
+
 
 }

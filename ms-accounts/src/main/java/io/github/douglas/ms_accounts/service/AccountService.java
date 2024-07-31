@@ -12,5 +12,5 @@ public interface AccountService {
 
     AccountDTO getUserDetails(UUID id);
 
-    void updatePassword(UpdatePasswordDTO request);
+    ResetCodeDTO requestResetPassword(ResetPasswordDTO request);
 }
