@@ -15,4 +15,5 @@ public interface AccountService {
     ResetCodeDTO requestResetPassword(ResetPasswordRequestDTO request);
 
     void resetPassword(ResetPasswordDTO request);
+
 }

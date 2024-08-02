@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -93,11 +92,14 @@ public class AccountServiceImpl implements AccountService {
         var code = 100_000 + (int)(Math.random() * ((999_999 - 100_000) + 1));
         var resetCode = new ResetCode(
                 valueOf(code),
-                request.email(),
+                request.accountEmail(),
                 LocalDateTime.now().plusMinutes(3)
         );
 
-        var alreadyRegisteredCode = resetCodeRepository.findByAccountEmail(request.email());
+        accountRepository.findByEmail(request.accountEmail())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with email: %s", request.accountEmail())));
+
+        var alreadyRegisteredCode = resetCodeRepository.findByAccountEmail(request.accountEmail());
         alreadyRegisteredCode.ifPresent(resetCodeRepository::delete);
 
         resetCodeRepository.save(resetCode);
@@ -111,21 +113,19 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void resetPassword(ResetPasswordDTO request) {
-        var resetCode = resetCodeRepository.findByAccountEmail(request.email())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Cannot found a reset password request for this email: %s", request.email())));
+        var resetCode = resetCodeRepository.findByAccountEmail(request.accountEmail())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Cannot found a reset password request for this email: %s", request.accountEmail())));
 
-        if (!request.validationCode().equals(resetCode.getResetCode())) {
-            throw new ValidationException("Invalid Reset Code.");
-        }
+        validateResetCode(request, resetCode);
+        validatePasswords(request);
 
-        var account = accountRepository.findByEmail(request.email())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with email: %s", request.email())));
+        var account = accountRepository.findByEmail(request.accountEmail())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with email: %s", request.accountEmail())));
 
-        account.setPassword(passwordEncoder.encode(request.newPassword()));
+        account.setPassword(passwordEncoder.encode(request.password()));
         resetCodeRepository.delete(resetCode);
     }
-
-
+    
 
     private void cpfCheck(String cpf) {
         if (accountRepository.existsByCpf(cpf)) throw new DataIntegrityViolationException("CPF already registered.");
@@ -141,6 +141,21 @@ public class AccountServiceImpl implements AccountService {
 
     private Boolean validatePassword(String password, Account account) {
         return passwordEncoder.matches(password, account.getPassword());
+    }
+
+    private void validateResetCode(ResetPasswordDTO request, ResetCode resetCode) {
+        if (resetCode.getExpiresAt().isBefore(LocalDateTime.now())) {
+            resetCodeRepository.delete(resetCode);
+            throw new ValidationException("Expired Reset Code. Please do a new reset password request");
+        }
+
+        if (!request.validationCode().equals(resetCode.getResetCode())) {
+            throw new ValidationException("Invalid Reset Code.");
+        }
+    }
+
+    private void validatePasswords(ResetPasswordDTO request) {
+       if (!request.password().equals(request.confirmPassword())) throw new ValidationException("Passwords didn't matches.");
     }
 
 }

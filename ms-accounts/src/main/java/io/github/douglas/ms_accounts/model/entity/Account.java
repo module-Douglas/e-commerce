@@ -55,6 +55,10 @@ public class Account {
 
     }
 
+    public Account(AccountDTO accountDTO) {
+        BeanUtils.copyProperties(accountDTO, this);
+    }
+
     public Account(AccountDTO accountDTO, String password) {
         BeanUtils.copyProperties(accountDTO, this);
         this.password = password;
