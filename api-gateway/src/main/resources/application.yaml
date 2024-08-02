@@ -15,7 +15,7 @@ spring:
         - id: ms-accounts
           uri: lb://ms-accounts
           predicates:
-            - Method=POST
+            - Method=POST, PATCH
             - Path=/accounts/login, /accounts/register, /accounts/refresh-token, /accounts/reset-password
 
         - id: ms-accounts

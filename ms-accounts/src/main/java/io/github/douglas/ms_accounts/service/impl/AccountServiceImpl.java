@@ -1,6 +1,7 @@
 package io.github.douglas.ms_accounts.service.impl;
 
 import io.github.douglas.ms_accounts.broker.KafkaProducer;
+import io.github.douglas.ms_accounts.config.exception.ValidationException;
 import io.github.douglas.ms_accounts.dto.*;
 import io.github.douglas.ms_accounts.model.entity.Account;
 import io.github.douglas.ms_accounts.model.entity.ResetCode;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -87,13 +89,16 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public ResetCodeDTO requestResetPassword(ResetPasswordDTO request) {
+    public ResetCodeDTO requestResetPassword(ResetPasswordRequestDTO request) {
         var code = 100_000 + (int)(Math.random() * ((999_999 - 100_000) + 1));
         var resetCode = new ResetCode(
                 valueOf(code),
                 request.email(),
                 LocalDateTime.now().plusMinutes(3)
         );
+
+        var alreadyRegisteredCode = resetCodeRepository.findByAccountEmail(request.email());
+        alreadyRegisteredCode.ifPresent(resetCodeRepository::delete);
 
         resetCodeRepository.save(resetCode);
         var message = format("Your password reset code is: %s", code);
@@ -103,6 +108,24 @@ public class AccountServiceImpl implements AccountService {
 
         return new ResetCodeDTO(resetCode);
     }
+
+    @Override
+    public void resetPassword(ResetPasswordDTO request) {
+        var resetCode = resetCodeRepository.findByAccountEmail(request.email())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Cannot found a reset password request for this email: %s", request.email())));
+
+        if (!request.validationCode().equals(resetCode.getResetCode())) {
+            throw new ValidationException("Invalid Reset Code.");
+        }
+
+        var account = accountRepository.findByEmail(request.email())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with email: %s", request.email())));
+
+        account.setPassword(passwordEncoder.encode(request.newPassword()));
+        resetCodeRepository.delete(resetCode);
+    }
+
+
 
     private void cpfCheck(String cpf) {
         if (accountRepository.existsByCpf(cpf)) throw new DataIntegrityViolationException("CPF already registered.");
