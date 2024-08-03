@@ -15,16 +15,24 @@ spring:
         - id: ms-accounts
           uri: lb://ms-accounts
           predicates:
-            - Method=POST, PATCH
-            - Path=/accounts/login, /accounts/register, /accounts/refresh-token, /accounts/reset-password
+            - Method = POST, PATCH
+            - Path = /accounts/login, /accounts/register, /accounts/refresh-token, /accounts/reset-password
 
         - id: ms-accounts
           uri: lb://ms-accounts
           predicates:
-            - Method=GET
-            - Path=/accounts/{id}
+            - Method = GET
+            - Path = /accounts/{id}
           filters:
             - CommonUserFilter
+
+        - id: ms-accounts
+          uri: lb://ms-accounts
+          predicates:
+            - Method = DELETE
+            - Path = /accounts
+          filters:
+            - SupperUserFilter
 
   jwt:
     secret: ${JWT_SECRET:cc9303afb79d48524a21c9e5894c3f8598a252148bcb7e7306d174f4609519a201b400d591d253a26ba40e47ed65558ef3c80f2864b36ac626399b50e3f4fff9}

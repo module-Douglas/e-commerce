@@ -125,7 +125,11 @@ public class AccountServiceImpl implements AccountService {
         account.setPassword(passwordEncoder.encode(request.password()));
         resetCodeRepository.delete(resetCode);
     }
-    
+
+    @Override
+    public void banAccount(AccountDTO accountDTO) {
+        accountRepository.deleteById(accountDTO.id());
+    }
 
     private void cpfCheck(String cpf) {
         if (accountRepository.existsByCpf(cpf)) throw new DataIntegrityViolationException("CPF already registered.");

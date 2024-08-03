@@ -58,6 +58,13 @@ public class AccountController {
                 .build();
     }
 
+    @DeleteMapping
+    public ResponseEntity<?> banAccount(@RequestBody AccountDTO request) {
+        accountService.banAccount(request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .build();
+    }
+
 
 
 }
