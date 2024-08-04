@@ -17,4 +17,6 @@ public interface AccountService {
     void resetPassword(UpdatePasswordDTO request);
 
     void banAccount(AccountDTO accountDTO);
+
+    AccountDTO updateAccountDetails(AccountDTO request);
 }

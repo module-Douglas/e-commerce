@@ -13,7 +13,6 @@ public record AccountDTO(
         String lastName,
         String email,
         String cpf,
-        String password,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         Set<AddressDTO> addresses,
@@ -26,7 +25,6 @@ public record AccountDTO(
                 user.getLastName(),
                 user.getEmail(),
                 user.getCpf(),
-                user.getPassword(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
                 user.getAddresses().stream()

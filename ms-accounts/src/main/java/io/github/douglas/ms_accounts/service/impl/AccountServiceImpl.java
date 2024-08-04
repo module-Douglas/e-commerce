@@ -105,7 +105,7 @@ public class AccountServiceImpl implements AccountService {
         resetCodeRepository.save(resetCode);
         var message = format("Your password reset code is: %s", code);
         kafkaProducer.sendMail(
-                jsonUtil.toJson(new EmailRequestDTO(resetCode.getAccountEmail(), message))
+                jsonUtil.toJson(new EmailRequestDTO("UPDATE PASSWORD CONFIRMATION CODE", resetCode.getAccountEmail(), message))
         );
 
         return new UpdatePasswordCodeDTO(resetCode);
@@ -129,6 +129,22 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void banAccount(AccountDTO accountDTO) {
         accountRepository.deleteById(accountDTO.id());
+    }
+
+    @Override
+    public AccountDTO updateAccountDetails(AccountDTO request) {
+        var account = accountRepository.findById(request.id())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with id: %s", request.id())));
+
+        if (!account.getEmail().equals(request.email())) emailCheck(request.email());
+
+        account.setFirstName(request.firstName());
+        account.setLastName(request.lastName());
+        account.setEmail(request.email());
+
+        return new AccountDTO(
+                accountRepository.save(account)
+        );
     }
 
     private void cpfCheck(String cpf) {

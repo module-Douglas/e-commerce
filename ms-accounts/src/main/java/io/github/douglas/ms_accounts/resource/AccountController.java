@@ -27,16 +27,16 @@ public class AccountController {
                 .body(accountService.register(request));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getUserDetails(@PathVariable("id") UUID id) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(accountService.getUserDetails(id));
-    }
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(accountService.login(request));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserDetails(@PathVariable("id") UUID id) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(accountService.getUserDetails(id));
     }
 
     @PostMapping("/refresh-token")
@@ -56,6 +56,12 @@ public class AccountController {
         accountService.resetPassword(request);
         return ResponseEntity.status(HttpStatus.OK)
                 .build();
+    }
+
+    @PatchMapping
+    public ResponseEntity<?> updateAccountDetails(@RequestBody AccountDTO request) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(accountService.updateAccountDetails(request));
     }
 
     @DeleteMapping
