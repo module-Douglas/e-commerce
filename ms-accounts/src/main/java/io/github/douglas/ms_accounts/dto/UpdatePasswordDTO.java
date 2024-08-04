@@ -1,6 +1,6 @@
 package io.github.douglas.ms_accounts.dto;
 
-public record ResetPasswordDTO(
+public record UpdatePasswordDTO(
         String validationCode,
         String accountEmail,
         String password,

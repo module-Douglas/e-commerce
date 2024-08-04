@@ -1,7 +1,7 @@
 package io.github.douglas.ms_accounts.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import io.github.douglas.ms_accounts.dto.RegisterAddressDTO;
+import io.github.douglas.ms_accounts.dto.AddressDTO;
 import jakarta.persistence.*;
 import org.springframework.beans.BeanUtils;
 
@@ -47,8 +47,8 @@ public class Address {
 
     }
 
-    public Address(RegisterAddressDTO registerAddressDTO) {
-        BeanUtils.copyProperties(registerAddressDTO, this);
+    public Address(AddressDTO addressDTO) {
+        BeanUtils.copyProperties(addressDTO, this);
     }
 
     public Address(UUID id, String zipCode, String street, String neighborhood, String complement, String number, String city, String state) {
@@ -134,11 +134,11 @@ public class Address {
         return updatedAt;
     }
 
-    public Account getUser() {
+    public Account getAccount() {
         return account;
     }
 
-    public void setUser(Account account) {
+    public void setAccount(Account account) {
         this.account = account;
     }
 }

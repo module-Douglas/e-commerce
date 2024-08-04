@@ -88,7 +88,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public ResetCodeDTO requestResetPassword(ResetPasswordRequestDTO request) {
+    public UpdatePasswordCodeDTO requestResetPassword(UpdatePasswordRequestDTO request) {
         var code = 100_000 + (int)(Math.random() * ((999_999 - 100_000) + 1));
         var resetCode = new ResetCode(
                 valueOf(code),
@@ -108,11 +108,11 @@ public class AccountServiceImpl implements AccountService {
                 jsonUtil.toJson(new EmailRequestDTO(resetCode.getAccountEmail(), message))
         );
 
-        return new ResetCodeDTO(resetCode);
+        return new UpdatePasswordCodeDTO(resetCode);
     }
 
     @Override
-    public void resetPassword(ResetPasswordDTO request) {
+    public void resetPassword(UpdatePasswordDTO request) {
         var resetCode = resetCodeRepository.findByAccountEmail(request.accountEmail())
                 .orElseThrow(() -> new ResourceNotFoundException(format("Cannot found a reset password request for this email: %s", request.accountEmail())));
 
@@ -147,7 +147,7 @@ public class AccountServiceImpl implements AccountService {
         return passwordEncoder.matches(password, account.getPassword());
     }
 
-    private void validateResetCode(ResetPasswordDTO request, ResetCode resetCode) {
+    private void validateResetCode(UpdatePasswordDTO request, ResetCode resetCode) {
         if (resetCode.getExpiresAt().isBefore(LocalDateTime.now())) {
             resetCodeRepository.delete(resetCode);
             throw new ValidationException("Expired Reset Code. Please do a new reset password request");
@@ -158,7 +158,7 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-    private void validatePasswords(ResetPasswordDTO request) {
+    private void validatePasswords(UpdatePasswordDTO request) {
        if (!request.password().equals(request.confirmPassword())) throw new ValidationException("Passwords didn't matches.");
     }
 

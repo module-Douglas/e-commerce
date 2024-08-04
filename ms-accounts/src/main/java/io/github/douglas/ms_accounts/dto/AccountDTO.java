@@ -32,6 +32,7 @@ public record AccountDTO(
                 user.getAddresses().stream()
                         .map(address -> new AddressDTO(
                                 address.getId(),
+                                address.getAccount().getId(),
                                 address.getZipCode(),
                                 address.getStreet(),
                                 address.getNeighborhood(),

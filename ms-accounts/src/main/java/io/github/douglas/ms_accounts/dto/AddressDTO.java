@@ -7,6 +7,7 @@ import java.util.UUID;
 
 public record AddressDTO(
         UUID id,
+        UUID accountId,
         String zipCode,
         String street,
         String neighborhood,
@@ -20,6 +21,7 @@ public record AddressDTO(
     public AddressDTO(Address address) {
         this(
                 address.getId(),
+                address.getAccount().getId(),
                 address.getZipCode(),
                 address.getStreet(),
                 address.getNeighborhood(),

@@ -1,6 +1,6 @@
 package io.github.douglas.ms_accounts.dto;
 
-public record ResetPasswordRequestDTO(
+public record UpdatePasswordRequestDTO(
         String accountEmail
 ) {
 }
