@@ -101,6 +101,16 @@ public class InventoryServiceImpl implements InventoryService {
         );
     }
 
+    @Override
+    public void updateInventory(String payload) {
+        var data = jsonUtil.toUpdateInventory(payload);
+        var inventory = inventoryRepository.findByProductId(data.productId())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Inventory not found for product id: %s", data.productId())));
+
+        inventory.setUnitValue(data.unitValue());
+        inventoryRepository.save(inventory);
+    }
+
     private void handleSuccess(Event event) {
         kafkaProducer.sendEvent(
                 jsonUtil.toJson(addHistory(event, "Product disposability successfully validated.", SUCCESS))

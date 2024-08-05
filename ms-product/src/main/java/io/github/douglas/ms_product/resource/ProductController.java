@@ -36,4 +36,17 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.findByName(name, pageRequest));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable("id") UUID id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .build();
+    }
+
+    @PatchMapping
+    public ResponseEntity<?> updateProduct(@RequestBody RegisterProductDTO request) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(productService.updateProduct(request));
+    }
 }

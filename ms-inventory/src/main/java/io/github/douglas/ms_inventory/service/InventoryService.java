@@ -15,4 +15,6 @@ public interface InventoryService {
     void rollbackInventory(String payload);
 
     InventoryDTO findById(UUID id);
+
+    void updateInventory(String payload);
 }

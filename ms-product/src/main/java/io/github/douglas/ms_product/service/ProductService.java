@@ -16,4 +16,8 @@ public interface ProductService {
     ProductDTO getProductDetails(UUID id);
 
     PageImpl<ProductDTO> findByName(String name, Pageable pageRequest);
+
+    void deleteProduct(UUID id);
+
+    ProductDTO updateProduct(RegisterProductDTO request);
 }

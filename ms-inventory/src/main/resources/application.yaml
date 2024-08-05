@@ -14,6 +14,7 @@ spring:
       inventory-validation: inventory-validation
       inventory-rollback: inventory-rollback
       register-inventory: register-inventory
+      update-inventory: update-inventory
 
   datasource:
     driver-class-name: org.postgresql.Driver

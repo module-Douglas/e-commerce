@@ -5,8 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import static io.github.douglas.ms_product.enums.Topics.ORCHESTRATOR;
-import static io.github.douglas.ms_product.enums.Topics.REGISTER_INVENTORY;
+import static io.github.douglas.ms_product.enums.Topics.*;
 
 
 @Component
@@ -34,6 +33,15 @@ public class KafkaProducer {
             kafkaTemplate.send(REGISTER_INVENTORY.getTopic(), payload);
         } catch (Exception e) {
             log.error("Error trying to send data to topic {} with data {}", REGISTER_INVENTORY.getTopic(), payload, e);
+        }
+    }
+
+    public void sendInventoryUpdate(String payload) {
+        try {
+            log.info("Sending update inventory event to topic {} with data {}", UPDATE_INVENTORY.getTopic(), payload);
+            kafkaTemplate.send(UPDATE_INVENTORY.getTopic(), payload);
+        } catch (Exception e) {
+            log.error("Error trying to send data to topic {} with data {}", UPDATE_INVENTORY.getTopic(), payload, e);
         }
     }
 

@@ -4,6 +4,7 @@ import io.github.douglas.ms_product.broker.KafkaProducer;
 import io.github.douglas.ms_product.dto.ProductDTO;
 import io.github.douglas.ms_product.dto.RegisterProductDTO;
 import io.github.douglas.ms_product.dto.RegisterInventoryDTO;
+import io.github.douglas.ms_product.dto.UpdateInventoryDTO;
 import io.github.douglas.ms_product.model.entity.Category;
 import io.github.douglas.ms_product.model.entity.Product;
 import io.github.douglas.ms_product.model.entity.Supplier;
@@ -107,7 +108,30 @@ public class ProductServiceImpl implements ProductService {
                 .stream().map(ProductDTO::new).toList();
 
         return new PageImpl<>(response, pageRequest, response.size());
+    }
 
+    @Override
+    public void deleteProduct(UUID id) {
+        var product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s", id)));
+        productRepository.delete(product);
+    }
+
+    @Override
+    public ProductDTO updateProduct(RegisterProductDTO request) {
+        var product = productRepository.findById(request.id())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s", request.id())));
+
+        product.setName(request.name());
+        product.setBrand(request.brand());
+        product.setDescription(request.description());
+
+        kafkaProducer.sendInventoryUpdate(
+                jsonUtil.toJson(new UpdateInventoryDTO(product.getId(), request.unitValue()))
+        );
+        return new ProductDTO(
+                productRepository.save(product)
+        );
     }
 
     private Set<Category> getCategories(Set<UUID> categories) {
