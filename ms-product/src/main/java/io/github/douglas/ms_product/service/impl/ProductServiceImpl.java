@@ -61,6 +61,7 @@ public class ProductServiceImpl implements ProductService {
                 request.name(),
                 request.description(),
                 request.brand(),
+                request.unitValue(),
                 categories,
                 supplier
         ));
@@ -125,6 +126,7 @@ public class ProductServiceImpl implements ProductService {
         product.setName(request.name());
         product.setBrand(request.brand());
         product.setDescription(request.description());
+        product.setUnitValue(request.unitValue());
 
         kafkaProducer.sendInventoryUpdate(
                 jsonUtil.toJson(new UpdateInventoryDTO(product.getId(), request.unitValue()))
@@ -137,10 +139,8 @@ public class ProductServiceImpl implements ProductService {
     private Set<Category> getCategories(Set<UUID> categories) {
          Set<Category> response = new HashSet<>();
          categories.forEach(
-                 category -> {
-                     response.add(categoryRepository.findById(category)
-                             .orElseThrow(() -> new ResourceNotFoundException(format("Category not found with id: %s", category))));
-                 }
+                 category -> response.add(categoryRepository.findById(category)
+                         .orElseThrow(() -> new ResourceNotFoundException(format("Category not found with id: %s", category))))
          );
 
          return response;

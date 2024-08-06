@@ -3,6 +3,7 @@ package io.github.douglas.ms_product.model.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,6 +19,7 @@ public class Product {
     private String name;
     private String description;
     private String brand;
+    private BigDecimal unitValue;
     private UUID inventoryId;
     @ManyToMany
     @JoinTable(name = "tb_products_categories",
@@ -53,10 +55,11 @@ public class Product {
         this.name = name;
     }
 
-    public Product(String name, String description, String brand, Set<Category> categories, Supplier supplier) {
+    public Product(String name, String description, String brand, BigDecimal unitValue, Set<Category> categories, Supplier supplier) {
         this.name = name;
         this.description = description;
         this.brand = brand;
+        this.unitValue = unitValue;
         this.categories = categories;
         this.supplier = supplier;
     }
@@ -91,6 +94,14 @@ public class Product {
 
     public void setBrand(String brand) {
         this.brand = brand;
+    }
+
+    public BigDecimal getUnitValue() {
+        return unitValue;
+    }
+
+    public void setUnitValue(BigDecimal unitValue) {
+        this.unitValue = unitValue;
     }
 
     public UUID getInventoryId() {

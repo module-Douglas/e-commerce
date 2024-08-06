@@ -45,5 +45,14 @@ public class KafkaConsumer {
         inventoryService.registerInventory(payload);
     }
 
+    @KafkaListener(
+            groupId = "${spring.kafka.consumer.group-id}",
+            topics = "${spring.kafka.topic.update-inventory}"
+    )
+    private void consumeUpdateInventory(String payload) {
+        log.info("Receiving register event {} from update-inventory topic", payload);
+        inventoryService.updateInventory(payload);
+    }
+
 
 }
