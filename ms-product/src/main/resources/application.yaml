@@ -21,6 +21,7 @@ spring:
       port: ${REDIS_PORT:6380}
       password: ${REDIS_PASSWORD:root}
 
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${DATABASE_NAME:product-db}
@@ -28,7 +29,7 @@ spring:
     password: ${POSTGRES_PASSWORD:root}
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -38,10 +39,8 @@ spring:
   cache:
     type: redis
     cache-names: searched_products
-
-  flyway:
-    baseline-on-migrate: true
-    enabled: true
+    redis:
+      time-to-live: 60000
 
 eureka:
   client:

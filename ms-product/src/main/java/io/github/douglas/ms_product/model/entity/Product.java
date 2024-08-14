@@ -1,7 +1,9 @@
 package io.github.douglas.ms_product.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import io.github.douglas.ms_product.dto.ProductDTO;
 import jakarta.persistence.*;
+import org.springframework.beans.BeanUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -18,9 +20,11 @@ public class Product {
     private UUID id;
     private String name;
     private String description;
-    private String brand;
     private BigDecimal unitValue;
     private UUID inventoryId;
+    @ManyToOne
+    @JoinColumn(name = "brand_id")
+    private Brand brand;
     @ManyToMany
     @JoinTable(name = "tb_products_categories",
     joinColumns = @JoinColumn(name = "product_id"),
@@ -51,11 +55,7 @@ public class Product {
 
     }
 
-    public Product(String name) {
-        this.name = name;
-    }
-
-    public Product(String name, String description, String brand, BigDecimal unitValue, Set<Category> categories, Supplier supplier) {
+    public Product(String name, String description, Brand brand, BigDecimal unitValue, Set<Category> categories, Supplier supplier) {
         this.name = name;
         this.description = description;
         this.brand = brand;
@@ -88,14 +88,6 @@ public class Product {
         this.description = description;
     }
 
-    public String getBrand() {
-        return brand;
-    }
-
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-
     public BigDecimal getUnitValue() {
         return unitValue;
     }
@@ -110,6 +102,14 @@ public class Product {
 
     public void setInventoryId(UUID inventoryId) {
         this.inventoryId = inventoryId;
+    }
+
+    public Brand getBrand() {
+        return brand;
+    }
+
+    public void setBrand(Brand brand) {
+        this.brand = brand;
     }
 
     public Set<Category> getCategories() {

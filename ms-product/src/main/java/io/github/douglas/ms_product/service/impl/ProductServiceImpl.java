@@ -5,15 +5,18 @@ import io.github.douglas.ms_product.dto.ProductDTO;
 import io.github.douglas.ms_product.dto.RegisterProductDTO;
 import io.github.douglas.ms_product.dto.RegisterInventoryDTO;
 import io.github.douglas.ms_product.dto.UpdateInventoryDTO;
+import io.github.douglas.ms_product.model.entity.Brand;
 import io.github.douglas.ms_product.model.entity.Category;
 import io.github.douglas.ms_product.model.entity.Product;
 import io.github.douglas.ms_product.model.entity.Supplier;
+import io.github.douglas.ms_product.model.repository.BrandRepository;
 import io.github.douglas.ms_product.model.repository.CategoryRepository;
 import io.github.douglas.ms_product.model.repository.ProductRepository;
 import io.github.douglas.ms_product.model.repository.SupplierRepository;
 import io.github.douglas.ms_product.service.ProductService;
 import io.github.douglas.ms_product.utils.JsonUtil;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.PageImpl;
@@ -23,10 +26,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.net.URI;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -36,6 +37,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final SupplierRepository supplierRepository;
+    private final BrandRepository brandRepository;
     private final KafkaProducer kafkaProducer;
     private final JsonUtil jsonUtil;
 
@@ -43,11 +45,13 @@ public class ProductServiceImpl implements ProductService {
             ProductRepository productRepository,
             CategoryRepository categoryRepository,
             SupplierRepository supplierRepository,
+            BrandRepository brandRepository,
             KafkaProducer kafkaProducer,
             JsonUtil jsonUtil) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.supplierRepository = supplierRepository;
+        this.brandRepository = brandRepository;
         this.kafkaProducer = kafkaProducer;
         this.jsonUtil = jsonUtil;
     }
@@ -56,11 +60,12 @@ public class ProductServiceImpl implements ProductService {
     public URI registerProduct(RegisterProductDTO request) {
         var categories = getCategories(request.categories());
         var supplier = getSupplier(request.supplierId());
+        var brand = getOrRegisterBrand(request.brand().toUpperCase());
 
         var product = productRepository.save(new Product(
                 request.name(),
                 request.description(),
-                request.brand(),
+                brand,
                 request.unitValue(),
                 categories,
                 supplier
@@ -83,24 +88,36 @@ public class ProductServiceImpl implements ProductService {
     public void linkInventory(String payload) {
         var link = jsonUtil.toLinkInventory(payload);
         var product = productRepository.findById(link.inventoryId())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s", link.productId())));
+                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s.", link.productId())));
 
         product.setInventoryId(link.inventoryId());
         productRepository.save(product);
     }
 
+    @Cacheable(value = "product", key = "#id")
     @Override
     public ProductDTO getProductDetails(UUID id) {
         var product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s", id)));
+                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s.", id)));
 
         return new ProductDTO(product);
     }
 
+    @Cacheable(value = "pageProducts")
     @Override
-    public PageImpl<ProductDTO> findByName(String name, Pageable pageRequest) {
+    public PageImpl<ProductDTO> getAll(String name, String brand, UUID[] categories, UUID supplierId, Pageable pageRequest) {
+        Product product = new Product();
+        product.setName(name);
+        product.setBrand(getBrand(brand));
+        product.setSupplier(new Supplier(supplierId));
+
+        if(!(categories == null)) {
+            product.setCategories(
+                    getCategories(Arrays.stream(categories).collect(Collectors.toSet()))
+            );
+        }
         List<ProductDTO> response = productRepository
-                .findAll(Example.of(new Product(name),
+                .findAll(Example.of(product,
                         ExampleMatcher
                                 .matching()
                                 .withIgnoreCase()
@@ -114,17 +131,17 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(UUID id) {
         var product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s", id)));
+                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s.", id)));
         productRepository.delete(product);
     }
 
     @Override
     public ProductDTO updateProduct(RegisterProductDTO request) {
         var product = productRepository.findById(request.id())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s", request.id())));
+                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s.", request.id())));
 
         product.setName(request.name());
-        product.setBrand(request.brand());
+        product.setBrand(getBrand(request.brand()));
         product.setDescription(request.description());
         product.setUnitValue(request.unitValue());
 
@@ -140,7 +157,7 @@ public class ProductServiceImpl implements ProductService {
          Set<Category> response = new HashSet<>();
          categories.forEach(
                  category -> response.add(categoryRepository.findById(category)
-                         .orElseThrow(() -> new ResourceNotFoundException(format("Category not found with id: %s", category))))
+                         .orElseThrow(() -> new ResourceNotFoundException(format("Category not found with id: %s.", category))))
          );
 
          return response;
@@ -148,6 +165,21 @@ public class ProductServiceImpl implements ProductService {
 
     private Supplier getSupplier(String id) {
         return supplierRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> new ResourceNotFoundException(format("Supplier not found with id: %s", id)));
+                .orElseThrow(() -> new ResourceNotFoundException(format("Supplier not found with id: %s.", id)));
     }
+
+    private Brand getOrRegisterBrand(String brand) {
+        if(brandRepository.existsByName(brand)) {
+            return brandRepository.findByName(brand)
+                    .orElseThrow(() -> new ResourceNotFoundException(format("Brand %s not found.", brand)));
+        }
+
+        return brandRepository.save(new Brand(brand));
+    }
+
+    private Brand getBrand(String brand) {
+        return brandRepository.findByName(brand)
+                .orElseThrow(() -> new ResourceNotFoundException(format("Brand %s not found.", brand)));
+    }
+
 }

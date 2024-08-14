@@ -50,6 +50,10 @@ public class Supplier {
 
     }
 
+    public Supplier(UUID id) {
+        this.id = id;
+    }
+
     public Supplier(SupplierDTO supplierDTO) {
         BeanUtils.copyProperties(supplierDTO, this);
     }

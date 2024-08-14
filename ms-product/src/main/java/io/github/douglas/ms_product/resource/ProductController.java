@@ -1,5 +1,6 @@
 package io.github.douglas.ms_product.resource;
 
+import io.github.douglas.ms_product.dto.ProductDTO;
 import io.github.douglas.ms_product.dto.RegisterProductDTO;
 import io.github.douglas.ms_product.service.ProductService;
 import org.springframework.data.domain.Pageable;
@@ -7,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -21,8 +23,9 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<?> registerProduct(@RequestBody RegisterProductDTO request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(productService.registerProduct(request));
+        return ResponseEntity.created(
+                productService.registerProduct(request)
+        ).build();
     }
 
     @GetMapping("/{id}")
@@ -32,9 +35,9 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllProductsLike(String name, Pageable pageRequest) {
+    public ResponseEntity<?> getAllProductsLike(String name, String brand, UUID[] categories, UUID supplierId, Pageable pageRequest) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(productService.findByName(name, pageRequest));
+                .body(productService.getAll(name, brand, categories, supplierId, pageRequest));
     }
 
     @DeleteMapping("/{id}")
