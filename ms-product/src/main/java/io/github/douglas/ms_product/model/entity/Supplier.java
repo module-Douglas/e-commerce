@@ -19,14 +19,13 @@ public class Supplier {
     private UUID id;
     @Column(unique = true)
     private String name;
-    @Column(unique = true)
+    @Column(unique = true, length = 14)
     private String cnpj;
     @Column(unique = true)
     private String email;
-    @Column(unique = true)
+    @Column(unique = true, length = 15)
     private String phoneNumber;
-
-    @OneToMany(mappedBy = "supplier", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "supplier", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JsonManagedReference
     private Set<Product> products = new HashSet<>();
     @Column(updatable = false)
@@ -54,8 +53,11 @@ public class Supplier {
         this.id = id;
     }
 
-    public Supplier(SupplierDTO supplierDTO) {
-        BeanUtils.copyProperties(supplierDTO, this);
+    public Supplier(String name, String email, String cnpj, String phoneNumber) {
+        this.name = name;
+        this.email = email;
+        this.cnpj = cnpj;
+        this.phoneNumber = phoneNumber;
     }
 
     public Supplier(UUID id, String name, String cnpj, String email, String phoneNumber) {

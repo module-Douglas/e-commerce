@@ -35,8 +35,8 @@ public class Category {
 
     }
 
-    public Category(CategoryDTO categoryDTO) {
-        BeanUtils.copyProperties(categoryDTO, this);
+    public Category(String name) {
+        this.name = name;
     }
 
     public Category(UUID id, String name) {

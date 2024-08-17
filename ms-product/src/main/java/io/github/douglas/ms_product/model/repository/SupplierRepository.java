@@ -10,4 +10,9 @@ import java.util.UUID;
 @Repository
 public interface SupplierRepository extends JpaRepository<Supplier, UUID> {
 
+    Boolean existsByName(String name);
+    Boolean existsByEmail(String email);
+    Boolean existsByCnpj(String cnpj);
+    Boolean existsByPhoneNumber(String phoneNumber);
+
 }

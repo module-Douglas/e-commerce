@@ -25,8 +25,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDTO registerCategory(CategoryDTO request) {
+        checkName(request.name().toUpperCase());
         return new CategoryDTO(
-                categoryRepository.save(new Category(request)));
+                categoryRepository.save(new Category(request.name().toUpperCase())));
     }
 
     @Cacheable(value = "category", key = "#id")
@@ -34,7 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDTO getCategoryById(UUID id) {
         return new CategoryDTO(
                 categoryRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException(format("Category not found with id %s", id))));
+                        .orElseThrow(() -> new ResourceNotFoundException(format("Category not found with id: %s", id))));
     }
 
     @Cacheable(value = "categories")
@@ -49,10 +50,15 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteCategory(CategoryDTO request) {
         var category = categoryRepository.findById(request.id())
-                    .orElseThrow(() -> new ResourceNotFoundException(format("Category not found with id %s", request.id())));
+                    .orElseThrow(() -> new ResourceNotFoundException(format("Category not found with id: %s", request.id())));
         if(!category.getProducts().isEmpty())
             throw new DataIntegrityViolationException(format("Category %s cannot be deleted as it is referenced by products.", request.id()));
 
         categoryRepository.delete(category);
+    }
+
+    private void checkName(String name) {
+        if (categoryRepository.existsByName(name))
+            throw new DataIntegrityViolationException(format("Name %s already registered.", name));
     }
 }

@@ -1,5 +1,6 @@
 package io.github.douglas.ms_product.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.github.douglas.ms_product.dto.ProductDTO;
 import jakarta.persistence.*;
@@ -31,8 +32,8 @@ public class Product {
     inverseJoinColumns = @JoinColumn(name = "category_id"))
     private Set<Category> categories = new HashSet<>();
     @ManyToOne
-    @JoinColumn(name = "supplier_id")
-    @JsonManagedReference
+    @JoinColumn(name = "supplier_id", referencedColumnName = "id")
+    @JsonBackReference
     private Supplier supplier;
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
