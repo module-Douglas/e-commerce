@@ -39,6 +39,6 @@ public class CategoryController {
     @DeleteMapping
     public ResponseEntity<?> deleteCategory(@RequestBody CategoryDTO request) {
         categoryService.deleteCategory(request);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

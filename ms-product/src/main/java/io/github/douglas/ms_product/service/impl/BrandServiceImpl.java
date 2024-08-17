@@ -73,6 +73,6 @@ public class BrandServiceImpl implements BrandService {
     }
 
     private static String brandNotFoundMessage(UUID id) {
-        return format("Brand not found with id: %s", id);
+        return format("Brand not found with id: %s.", id);
     }
 }

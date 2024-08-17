@@ -45,7 +45,7 @@ public class BrandController {
     @DeleteMapping
     public ResponseEntity<?> deleteBrand(@RequestBody BrandDTO request) {
         brandService.deleteBrand(request);
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .build();
     }
 }

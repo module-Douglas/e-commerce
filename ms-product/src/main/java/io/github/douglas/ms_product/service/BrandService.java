@@ -9,10 +9,8 @@ import java.util.UUID;
 public interface BrandService {
     BrandDTO registerBrand(BrandDTO request);
 
-    @Cacheable(value = "brand", key = "#id")
     BrandDTO getBrandById(UUID id);
 
-    @Cacheable(value = "brands")
     List<BrandDTO> getAllBrands();
 
     BrandDTO updateBrand(BrandDTO request);
