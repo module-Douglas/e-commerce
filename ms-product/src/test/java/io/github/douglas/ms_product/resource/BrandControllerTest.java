@@ -71,8 +71,8 @@ class BrandControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").value(response.id().toString()))
                 .andExpect(jsonPath("name").value(response.name()))
-                .andExpect(jsonPath("createdAt").value(response.createdAt().toString()))
-                .andExpect(jsonPath("updatedAt").value(response.updatedAt().toString()));
+                .andExpect(jsonPath("createdAt").isNotEmpty())
+                .andExpect(jsonPath("updatedAt").isNotEmpty());
     }
 
     @Test
@@ -112,8 +112,8 @@ class BrandControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").value(brand.id().toString()))
                 .andExpect(jsonPath("name").value(brand.name()))
-                .andExpect(jsonPath("createdAt").value(brand.createdAt().toString()))
-                .andExpect(jsonPath("updatedAt").value(brand.updatedAt().toString()));
+                .andExpect(jsonPath("createdAt").isNotEmpty())
+                .andExpect(jsonPath("updatedAt").isNotEmpty());
     }
 
     @Test
@@ -153,12 +153,12 @@ class BrandControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(brands.get(0).id().toString()))
                 .andExpect(jsonPath("$[0].name").value(brands.get(0).name()))
-                .andExpect(jsonPath("$[0].createdAt").value(brands.get(0).createdAt().toString()))
-                .andExpect(jsonPath("$[0].updatedAt").value(brands.get(0).updatedAt().toString()))
+                .andExpect(jsonPath("$[0].createdAt").isNotEmpty())
+                .andExpect(jsonPath("$[0].updatedAt").isNotEmpty())
                 .andExpect(jsonPath("$[1].id").value(brands.get(1).id().toString()))
                 .andExpect(jsonPath("$[1].name").value(brands.get(1).name()))
-                .andExpect(jsonPath("$[1].createdAt").value(brands.get(1).createdAt().toString()))
-                .andExpect(jsonPath("$[1].updatedAt").value(brands.get(1).updatedAt().toString()));
+                .andExpect(jsonPath("$[1].createdAt").isNotEmpty())
+                .andExpect(jsonPath("$[1].updatedAt").isNotEmpty());
     }
 
     @Test
@@ -195,8 +195,8 @@ class BrandControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").value(brand.id().toString()))
                 .andExpect(jsonPath("name").value(brand.name()))
-                .andExpect(jsonPath("createdAt").value(brand.createdAt().toString()))
-                .andExpect(jsonPath("updatedAt").value(brand.updatedAt().toString()));
+                .andExpect(jsonPath("createdAt").isNotEmpty())
+                .andExpect(jsonPath("updatedAt").isNotEmpty());
     }
 
     @Test

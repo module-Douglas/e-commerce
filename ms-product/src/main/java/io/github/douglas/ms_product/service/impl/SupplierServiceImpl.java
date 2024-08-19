@@ -63,6 +63,15 @@ public class SupplierServiceImpl implements SupplierService {
         var supplier = supplierRepository.findById(request.id())
                 .orElseThrow(() -> new ResourceNotFoundException(supplierNotFoundMessage(request.id())));
 
+        if (!supplier.getCnpj().equals(request.cnpj()))
+            checkCnpj(request.cnpj());
+        if (!supplier.getEmail().equals(request.email()))
+            checkEmail(request.email());
+        if (!supplier.getPhoneNumber().equals(request.phoneNumber()))
+            checkPhoneNumber(request.phoneNumber());
+        if(!supplier.getName().equals(request.name()))
+            checkName(request.name());
+
         supplier.setName(request.name());
         supplier.setCnpj(request.cnpj());
         supplier.setEmail(request.email());
@@ -80,7 +89,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     private void checkName(String name) {
-        if (name.isEmpty() || name.isBlank())
+        if (name == null || name.isEmpty() || name.isBlank())
             throw new ValidationException("Invalid name parameters.");
 
         if (supplierRepository.existsByName(name))
@@ -105,32 +114,32 @@ public class SupplierServiceImpl implements SupplierService {
 
     private void checkCnpj(String cnpj) {
         if (!Pattern.matches(CNPJ_PATTERN, cnpj))
-            throw new DataIntegrityViolationException("Invalid CNPJ format.");
+            throw new ValidationException("Invalid CNPJ format.");
 
-        cnpj = cleanCnpj(cnpj);
-        if (cnpj.length() != CNPJ_LENGTH)
-            throw new DataIntegrityViolationException("Invalid CNPJ size.");
+        var formatedCnpj = cleanCnpj(cnpj);
+        if (formatedCnpj.length() != CNPJ_LENGTH)
+            throw new ValidationException("Invalid CNPJ size.");
 
         var sum = 0;
         for (int i = 0; i < FIRST_DIGIT_INDEX; i ++) {
-            sum += parseInt(valueOf(cnpj.charAt(i))) * FIRST_DIGIT_VALIDATION[i];
+            sum += parseInt(valueOf(formatedCnpj.charAt(i))) * FIRST_DIGIT_VALIDATION[i];
         }
 
         var mod = (sum % 11);
-        char firstDigit = (mod == 0 || mod == 1) ? '0' : (char) (11 - mod);
+        char firstDigit = (mod == 0 || mod == 1) ? '0' : (char) ('0' + (11 - mod));
 
         sum = 0;
-        for (int i = 0; i < FIRST_DIGIT_INDEX; i++) {
-            sum += parseInt(valueOf(cnpj.charAt(i))) * SECOND_DIGIT_VALIDATION[i];
+        for (int i = 0; i < SECOND_DIGIT_INDEX; i++) {
+            sum += parseInt(valueOf(formatedCnpj.charAt(i))) * SECOND_DIGIT_VALIDATION[i];
         }
 
         mod = (sum % 11);
-        char secondDigit = (mod == 0 || mod == 1) ? '0': (char) (11 - mod);
+        char secondDigit = (mod == 0 || mod == 1) ? '0': (char) ('0' + (11 - mod));
 
-        if ((cnpj.charAt(FIRST_DIGIT_INDEX) != firstDigit) || (cnpj.charAt(SECOND_DIGIT_INDEX) != secondDigit))
+        if ((formatedCnpj.charAt(FIRST_DIGIT_INDEX) != firstDigit) || (formatedCnpj.charAt(SECOND_DIGIT_INDEX) != secondDigit))
             throw new ValidationException("Invalid CNPJ.");
 
-        if (supplierRepository.existsByCnpj(cnpj))
+        if (supplierRepository.existsByCnpj(formatedCnpj))
             throw new DataIntegrityViolationException(format("Cnpj %s already registered.", cnpj));
     }
 
