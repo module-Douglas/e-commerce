@@ -15,6 +15,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -142,8 +145,11 @@ class BrandControllerTest {
         brands.add(getValidBrandDTOWithId());
         brands.add(getValidBrandDTOWithId());
 
-        given(brandService.getAllBrands())
-                .willReturn(brands);
+        var pageable = PageRequest.of(0, 10);
+        var page = new PageImpl<>(brands, pageable, brands.size());
+
+        given(brandService.getAllBrands(any(Pageable.class)))
+                .willReturn(page);
 
         var requestBuilder = MockMvcRequestBuilders
                 .get(BRAND_URL)
@@ -151,21 +157,25 @@ class BrandControllerTest {
 
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(brands.get(0).id().toString()))
-                .andExpect(jsonPath("$[0].name").value(brands.get(0).name()))
-                .andExpect(jsonPath("$[0].createdAt").isNotEmpty())
-                .andExpect(jsonPath("$[0].updatedAt").isNotEmpty())
-                .andExpect(jsonPath("$[1].id").value(brands.get(1).id().toString()))
-                .andExpect(jsonPath("$[1].name").value(brands.get(1).name()))
-                .andExpect(jsonPath("$[1].createdAt").isNotEmpty())
-                .andExpect(jsonPath("$[1].updatedAt").isNotEmpty());
+                .andExpect(jsonPath("totalElements").value(brands.size()))
+                .andExpect(jsonPath("content[0].id").value(brands.get(0).id().toString()))
+                .andExpect(jsonPath("content[0].name").value(brands.get(0).name()))
+                .andExpect(jsonPath("content[0].createdAt").isNotEmpty())
+                .andExpect(jsonPath("content[0].updatedAt").isNotEmpty())
+                .andExpect(jsonPath("content[1].id").value(brands.get(1).id().toString()))
+                .andExpect(jsonPath("content[1].name").value(brands.get(1).name()))
+                .andExpect(jsonPath("content[1].createdAt").isNotEmpty())
+                .andExpect(jsonPath("content[1].updatedAt").isNotEmpty());
     }
 
     @Test
     @DisplayName("Get empty list of Brands.")
     public void getEmptyListOfBrandsTest() throws Exception {
-        given(brandService.getAllBrands())
-                .willReturn(new ArrayList<>());
+        var pageable = PageRequest.of(0, 10);
+        var page = new PageImpl<BrandDTO>(new ArrayList<>(), pageable, 0);
+
+        given(brandService.getAllBrands(any(Pageable.class)))
+                .willReturn(page);
 
         var requestBuilder = MockMvcRequestBuilders
                 .get(BRAND_URL)
@@ -173,7 +183,8 @@ class BrandControllerTest {
 
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isEmpty());
+                .andExpect(jsonPath("totalElements").value(0))
+                .andExpect(jsonPath("content").isEmpty());
     }
 
     @Test

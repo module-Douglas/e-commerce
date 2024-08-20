@@ -7,9 +7,10 @@ import io.github.douglas.ms_product.service.BrandService;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 import static java.lang.String.format;
@@ -40,11 +41,12 @@ public class BrandServiceImpl implements BrandService {
 
     @Cacheable(value = "brands")
     @Override
-    public List<BrandDTO> getAllBrands() {
-        return brandRepository.findAll()
+    public PageImpl<BrandDTO> getAllBrands(Pageable pageRequest) {
+        var response = brandRepository.findAll(pageRequest)
                 .stream()
                 .map(BrandDTO::new)
                 .toList();
+        return new PageImpl<>(response, pageRequest, response.size());
     }
 
     @Override

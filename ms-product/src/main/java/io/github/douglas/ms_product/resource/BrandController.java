@@ -2,6 +2,7 @@ package io.github.douglas.ms_product.resource;
 
 import io.github.douglas.ms_product.dto.BrandDTO;
 import io.github.douglas.ms_product.service.BrandService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +32,9 @@ public class BrandController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAll() {
+    public ResponseEntity<?> getAll(Pageable pageRequest) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(brandService.getAllBrands());
+                .body(brandService.getAllBrands(pageRequest));
     }
 
     @PatchMapping

@@ -12,6 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -105,24 +108,33 @@ class BrandServiceTest {
         brands.add(getValidBrand());
         brands.add(getValidBrand());
 
-        when(brandRepository.findAll())
-                .thenReturn(brands);
+        var pageable = PageRequest.of(0, 10);
+        var page = new PageImpl<>(brands, pageable, brands.size());
 
-        var response = brandService.getAllBrands();
+        when(brandRepository.findAll(any(Pageable.class)))
+                .thenReturn(page);
+
+        var response = brandService.getAllBrands(pageable);
 
         assertThat(response).isNotNull();
-        assertThat(response.size()).isEqualTo(brands.size());
+        assertThat(response.getTotalElements()).isEqualTo(brands.size());
+        assertThat(response.getContent().size()).isEqualTo(brands.size());
     }
 
     @Test
     @DisplayName("Get empty list of brands.")
     public void getEmptyListOfBrandsTest() {
-        when(brandRepository.findAll())
-                .thenReturn(new ArrayList<>());
+        var pageable = PageRequest.of(0, 10);
+        var page = new PageImpl<Brand>(new ArrayList<>(), pageable, 0);
 
-        var response = brandService.getAllBrands();
+        when(brandRepository.findAll(any(Pageable.class)))
+                .thenReturn(page);
 
-        assertThat(response).isEmpty();
+        var response = brandService.getAllBrands(pageable);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getTotalElements()).isEqualTo(0);
+        assertThat(response.getContent()).isEmpty();
     }
 
     @Test
