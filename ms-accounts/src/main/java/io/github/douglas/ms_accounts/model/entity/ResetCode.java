@@ -1,5 +1,6 @@
 package io.github.douglas.ms_accounts.model.entity;
 
+import io.github.douglas.ms_accounts.enums.Type;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,8 @@ public class ResetCode {
     @Column(unique = true)
     private String accountEmail;
     private LocalDateTime expiresAt;
+    @Enumerated(EnumType.STRING)
+    private Type type;
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
@@ -30,10 +33,11 @@ public class ResetCode {
 
     }
 
-    public ResetCode(String resetCode, String accountEmail, LocalDateTime expiresAt) {
+    public ResetCode(String resetCode, String accountEmail, LocalDateTime expiresAt, Type type) {
         this.resetCode = resetCode;
         this.accountEmail = accountEmail;
         this.expiresAt = expiresAt;
+        this.type = type;
     }
 
     public UUID getId() {
@@ -66,6 +70,14 @@ public class ResetCode {
 
     public void setExpiresAt(LocalDateTime expiresAt) {
         this.expiresAt = expiresAt;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 
     public LocalDateTime getCreatedAt() {

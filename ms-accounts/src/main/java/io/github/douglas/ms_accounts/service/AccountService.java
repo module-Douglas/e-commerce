@@ -12,9 +12,13 @@ public interface AccountService {
 
     AccountDTO getUserDetails(UUID id);
 
-    UpdatePasswordCodeDTO requestResetPassword(UpdatePasswordRequestDTO request);
+    ResetCodeDTO requestResetPassword(UpdatePasswordRequestDTO request);
 
     void resetPassword(UpdatePasswordDTO request);
+
+    ResetCodeDTO changeEmailRequest(ChangeEmailRequestDTO request);
+
+    void changeEmail(ChangeEmailDTO request);
 
     void banAccount(AccountDTO accountDTO);
 

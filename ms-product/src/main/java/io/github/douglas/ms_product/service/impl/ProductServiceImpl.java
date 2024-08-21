@@ -63,7 +63,7 @@ public class ProductServiceImpl implements ProductService {
         var brand = getOrRegisterBrand(request.brand().toUpperCase());
 
         var product = productRepository.save(new Product(
-                request.name(),
+                request.name().toUpperCase(),
                 request.description(),
                 brand,
                 request.unitValue(),

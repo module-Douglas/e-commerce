@@ -3,6 +3,7 @@ package io.github.douglas.ms_accounts.service.impl;
 import io.github.douglas.ms_accounts.broker.KafkaProducer;
 import io.github.douglas.ms_accounts.config.exception.ValidationException;
 import io.github.douglas.ms_accounts.dto.*;
+import io.github.douglas.ms_accounts.enums.Type;
 import io.github.douglas.ms_accounts.model.entity.Account;
 import io.github.douglas.ms_accounts.model.entity.ResetCode;
 import io.github.douglas.ms_accounts.model.repository.ResetCodeRepository;
@@ -21,6 +22,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.github.douglas.ms_accounts.enums.Type.EMAIL;
+import static io.github.douglas.ms_accounts.enums.Type.PASSWORD;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 
@@ -72,7 +75,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccessTokenDTO login(LoginDTO loginRequest) {
         var account = accountRepository.findByEmail(loginRequest.email())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with email: %s", loginRequest.email())));
+                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with email: %s.", loginRequest.email())));
 
         if (!validatePassword(loginRequest.password(), account)) {
             throw new AuthenticationException("Invalid password. Try again or reset you password.");
@@ -84,20 +87,21 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDTO getUserDetails(UUID id) {
         return new AccountDTO(accountRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with id: %s", id))));
+                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with id: %s.", id))));
     }
 
     @Override
-    public UpdatePasswordCodeDTO requestResetPassword(UpdatePasswordRequestDTO request) {
+    public ResetCodeDTO requestResetPassword(UpdatePasswordRequestDTO request) {
+        accountRepository.findByEmail(request.accountEmail())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with email: %s.", request.accountEmail())));
+
         var code = 100_000 + (int)(Math.random() * ((999_999 - 100_000) + 1));
         var resetCode = new ResetCode(
                 valueOf(code),
                 request.accountEmail(),
-                LocalDateTime.now().plusMinutes(3)
+                LocalDateTime.now().plusMinutes(3),
+                PASSWORD
         );
-
-        accountRepository.findByEmail(request.accountEmail())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with email: %s", request.accountEmail())));
 
         var alreadyRegisteredCode = resetCodeRepository.findByAccountEmail(request.accountEmail());
         alreadyRegisteredCode.ifPresent(resetCodeRepository::delete);
@@ -108,7 +112,7 @@ public class AccountServiceImpl implements AccountService {
                 jsonUtil.toJson(new EmailRequestDTO("UPDATE PASSWORD CONFIRMATION CODE", resetCode.getAccountEmail(), message))
         );
 
-        return new UpdatePasswordCodeDTO(resetCode);
+        return new ResetCodeDTO(resetCode);
     }
 
     @Override
@@ -116,13 +120,60 @@ public class AccountServiceImpl implements AccountService {
         var resetCode = resetCodeRepository.findByAccountEmail(request.accountEmail())
                 .orElseThrow(() -> new ResourceNotFoundException(format("Cannot found a reset password request for this email: %s", request.accountEmail())));
 
-        validateResetCode(request, resetCode);
+        validateResetCode(request.validationCode(), resetCode);
         validatePasswords(request);
+        validateType(PASSWORD, resetCode.getType());
 
         var account = accountRepository.findByEmail(request.accountEmail())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with email: %s", request.accountEmail())));
+                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with email: %s.", request.accountEmail())));
 
         account.setPassword(passwordEncoder.encode(request.password()));
+        accountRepository.save(account);
+        resetCodeRepository.delete(resetCode);
+    }
+
+    @Override
+    public ResetCodeDTO changeEmailRequest(ChangeEmailRequestDTO request) {
+        var account = accountRepository.findById(request.accountId())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with id: %s.", request.accountId())));
+
+        if (!account.getEmail().equals(request.currentEmail()))
+            throw new ValidationException("Something went wrong. Current email doesn't match with account registered email.");
+        emailCheck(request.newEmail());
+
+        var code = 100_000 + (int)(Math.random() * ((999_999 - 100_000) + 1));
+        var resetCode = new ResetCode(
+                valueOf(code),
+                request.currentEmail(),
+                LocalDateTime.now().plusMinutes(3),
+                EMAIL
+        );
+
+        var alreadyRegisteredCode = resetCodeRepository.findByAccountEmail(account.getEmail());
+        alreadyRegisteredCode.ifPresent(resetCodeRepository::delete);
+
+        resetCodeRepository.save(resetCode);
+        var message = format("Your change email confirmation code is: %s", code);
+        kafkaProducer.sendMail(
+                jsonUtil.toJson(new EmailRequestDTO("UPDATE EMAIL CONFIRMATION CODE", resetCode.getAccountEmail(), message))
+        );
+
+        return new ResetCodeDTO(resetCode);
+    }
+
+    @Override
+    public void changeEmail(ChangeEmailDTO request) {
+        var resetCode = resetCodeRepository.findByAccountEmail(request.currentEmail())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Cannot found a reset password request for this email: %s.", request.currentEmail())));
+
+        validateResetCode(request.resetCode(), resetCode);
+        emailCheck(request.newEmail());
+        validateType(EMAIL, resetCode.getType());
+
+        var account = accountRepository.findByEmail(request.currentEmail())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with email: %s.", request.currentEmail())));
+        account.setEmail(request.newEmail());
+        accountRepository.save(account);
         resetCodeRepository.delete(resetCode);
     }
 
@@ -134,9 +185,9 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDTO updateAccountDetails(AccountDTO request) {
         var account = accountRepository.findById(request.id())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with id: %s", request.id())));
+                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with id: %s.", request.id())));
 
-        if (!account.getEmail().equals(request.email())) emailCheck(request.email());
+        if (!account.getEmail().equals(request.email())) throw new ValidationException("Email must be changed at /change-email endpoint.");
 
         account.setFirstName(request.firstName());
         account.setLastName(request.lastName());
@@ -152,30 +203,34 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private void emailCheck(String email) {
-        if (accountRepository.existsByEmail(email)) throw new DataIntegrityViolationException("Email already in use. Try to reset your password");
+        if (accountRepository.existsByEmail(email)) throw new DataIntegrityViolationException("Email already in use. Try to reset your password.");
     }
 
     private void roleCheck(UUID roleId) {
-        if (!roleRepository.existsById(roleId)) throw new ResourceNotFoundException(format("Role not found with id: %s", roleId));
+        if (!roleRepository.existsById(roleId)) throw new ResourceNotFoundException(format("Role not found with id: %s.", roleId));
     }
 
     private Boolean validatePassword(String password, Account account) {
         return passwordEncoder.matches(password, account.getPassword());
     }
 
-    private void validateResetCode(UpdatePasswordDTO request, ResetCode resetCode) {
+    private void validateResetCode(String request, ResetCode resetCode) {
         if (resetCode.getExpiresAt().isBefore(LocalDateTime.now())) {
             resetCodeRepository.delete(resetCode);
-            throw new ValidationException("Expired Reset Code. Please do a new reset password request");
+            throw new ValidationException("Expired Reset Code. Please do a new reset password request.");
         }
 
-        if (!request.validationCode().equals(resetCode.getResetCode())) {
+        if (!request.equals(resetCode.getResetCode())) {
             throw new ValidationException("Invalid Reset Code.");
         }
     }
 
-    private void validatePasswords(UpdatePasswordDTO request) {
+    private static void validatePasswords(UpdatePasswordDTO request) {
        if (!request.password().equals(request.confirmPassword())) throw new ValidationException("Passwords didn't matches.");
+    }
+
+    private static void validateType(Type expected, Type received) {
+        if (!expected.equals(received)) throw new ValidationException("Reset code Type doesn't match with requested resource.");
     }
 
 }
