@@ -75,11 +75,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccessTokenDTO login(LoginDTO loginRequest) {
         var account = accountRepository.findByEmail(loginRequest.email())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with email: %s.", loginRequest.email())));
+                .orElseThrow(() -> new ResourceNotFoundException(accountNotFoundWithEmailMessage(loginRequest.email())));
 
-        if (!validatePassword(loginRequest.password(), account)) {
+        if (!validatePassword(loginRequest.password(), account))
             throw new AuthenticationException("Invalid password. Try again or reset you password.");
-        }
 
         return tokenService.generateTokens(account);
     }
@@ -87,27 +86,21 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDTO getUserDetails(UUID id) {
         return new AccountDTO(accountRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with id: %s.", id))));
+                .orElseThrow(() -> new ResourceNotFoundException(accountNotFoundWithIdMessage(id))));
     }
 
     @Override
     public ResetCodeDTO requestResetPassword(UpdatePasswordRequestDTO request) {
         accountRepository.findByEmail(request.accountEmail())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with email: %s.", request.accountEmail())));
+                .orElseThrow(() -> new ResourceNotFoundException(accountNotFoundWithEmailMessage(request.accountEmail())));
 
-        var code = 100_000 + (int)(Math.random() * ((999_999 - 100_000) + 1));
-        var resetCode = new ResetCode(
-                valueOf(code),
-                request.accountEmail(),
-                LocalDateTime.now().plusMinutes(3),
-                PASSWORD
-        );
+        var resetCode = generateResetCode(request.accountEmail(), PASSWORD);
 
         var alreadyRegisteredCode = resetCodeRepository.findByAccountEmail(request.accountEmail());
         alreadyRegisteredCode.ifPresent(resetCodeRepository::delete);
 
         resetCodeRepository.save(resetCode);
-        var message = format("Your password reset code is: %s", code);
+        var message = format("Your password reset code is: %s", resetCode.getResetCode());
         kafkaProducer.sendMail(
                 jsonUtil.toJson(new EmailRequestDTO("UPDATE PASSWORD CONFIRMATION CODE", resetCode.getAccountEmail(), message))
         );
@@ -125,7 +118,7 @@ public class AccountServiceImpl implements AccountService {
         validateType(PASSWORD, resetCode.getType());
 
         var account = accountRepository.findByEmail(request.accountEmail())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with email: %s.", request.accountEmail())));
+                .orElseThrow(() -> new ResourceNotFoundException(accountNotFoundWithEmailMessage(request.accountEmail())));
 
         account.setPassword(passwordEncoder.encode(request.password()));
         accountRepository.save(account);
@@ -135,25 +128,19 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public ResetCodeDTO changeEmailRequest(ChangeEmailRequestDTO request) {
         var account = accountRepository.findById(request.accountId())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with id: %s.", request.accountId())));
+                .orElseThrow(() -> new ResourceNotFoundException(accountNotFoundWithIdMessage(request.accountId())));
 
         if (!account.getEmail().equals(request.currentEmail()))
             throw new ValidationException("Something went wrong. Current email doesn't match with account registered email.");
         emailCheck(request.newEmail());
 
-        var code = 100_000 + (int)(Math.random() * ((999_999 - 100_000) + 1));
-        var resetCode = new ResetCode(
-                valueOf(code),
-                request.currentEmail(),
-                LocalDateTime.now().plusMinutes(3),
-                EMAIL
-        );
+        var resetCode = generateResetCode(request.currentEmail(), EMAIL);
 
         var alreadyRegisteredCode = resetCodeRepository.findByAccountEmail(account.getEmail());
         alreadyRegisteredCode.ifPresent(resetCodeRepository::delete);
 
         resetCodeRepository.save(resetCode);
-        var message = format("Your change email confirmation code is: %s", code);
+        var message = format("Your change email confirmation code is: %s", resetCode.getResetCode());
         kafkaProducer.sendMail(
                 jsonUtil.toJson(new EmailRequestDTO("UPDATE EMAIL CONFIRMATION CODE", resetCode.getAccountEmail(), message))
         );
@@ -171,7 +158,7 @@ public class AccountServiceImpl implements AccountService {
         validateType(EMAIL, resetCode.getType());
 
         var account = accountRepository.findByEmail(request.currentEmail())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with email: %s.", request.currentEmail())));
+                .orElseThrow(() -> new ResourceNotFoundException(accountNotFoundWithEmailMessage(request.currentEmail())));
         account.setEmail(request.newEmail());
         accountRepository.save(account);
         resetCodeRepository.delete(resetCode);
@@ -185,9 +172,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDTO updateAccountDetails(AccountDTO request) {
         var account = accountRepository.findById(request.id())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Account not found with id: %s.", request.id())));
+                .orElseThrow(() -> new ResourceNotFoundException(accountNotFoundWithIdMessage(request.id())));
 
-        if (!account.getEmail().equals(request.email())) throw new ValidationException("Email must be changed at /change-email endpoint.");
+        if (!account.getEmail().equals(request.email()))
+            throw new ValidationException("Email must be changed at /change-email endpoint.");
 
         account.setFirstName(request.firstName());
         account.setLastName(request.lastName());
@@ -199,15 +187,18 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private void cpfCheck(String cpf) {
-        if (accountRepository.existsByCpf(cpf)) throw new DataIntegrityViolationException("CPF already registered.");
+        if (accountRepository.existsByCpf(cpf))
+            throw new DataIntegrityViolationException("CPF already registered.");
     }
 
     private void emailCheck(String email) {
-        if (accountRepository.existsByEmail(email)) throw new DataIntegrityViolationException("Email already in use. Try to reset your password.");
+        if (accountRepository.existsByEmail(email))
+            throw new DataIntegrityViolationException("Email already in use. Try to reset your password.");
     }
 
     private void roleCheck(UUID roleId) {
-        if (!roleRepository.existsById(roleId)) throw new ResourceNotFoundException(format("Role not found with id: %s.", roleId));
+        if (!roleRepository.existsById(roleId))
+            throw new ResourceNotFoundException(format("Role not found with id: %s.", roleId));
     }
 
     private Boolean validatePassword(String password, Account account) {
@@ -220,17 +211,35 @@ public class AccountServiceImpl implements AccountService {
             throw new ValidationException("Expired Reset Code. Please do a new reset password request.");
         }
 
-        if (!request.equals(resetCode.getResetCode())) {
+        if (!request.equals(resetCode.getResetCode()))
             throw new ValidationException("Invalid Reset Code.");
-        }
     }
 
     private static void validatePasswords(UpdatePasswordDTO request) {
-       if (!request.password().equals(request.confirmPassword())) throw new ValidationException("Passwords didn't matches.");
+       if (!request.password().equals(request.confirmPassword()))
+           throw new ValidationException("Passwords didn't matches.");
     }
 
     private static void validateType(Type expected, Type received) {
-        if (!expected.equals(received)) throw new ValidationException("Reset code Type doesn't match with requested resource.");
+        if (!expected.equals(received))
+            throw new ValidationException("Reset code Type doesn't match with requested resource.");
     }
 
+    private static ResetCode generateResetCode(String accountEmail, Type type) {
+        var code = 100_000 + (int)(Math.random() * ((999_999 - 100_000) + 1));
+        return new ResetCode(
+                valueOf(code),
+                accountEmail,
+                LocalDateTime.now().plusMinutes(3),
+                type
+        );
+    }
+
+    private static String accountNotFoundWithEmailMessage(String email) {
+        return format("Account not found with email: %s.", email);
+    }
+
+    private static String accountNotFoundWithIdMessage(UUID id) {
+        return format("Account not found with id: %s.", id);
+    }
 }

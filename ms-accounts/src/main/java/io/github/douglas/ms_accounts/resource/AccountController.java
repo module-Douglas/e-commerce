@@ -45,14 +45,14 @@ public class AccountController {
                 .body(tokenService.generateTokensByRefreshToken(request));
     }
 
-    @PostMapping("/password-update")
-    public ResponseEntity<?> requestPasswordUpdated(@RequestBody UpdatePasswordRequestDTO request) {
+    @PostMapping("/password-reset")
+    public ResponseEntity<?> requestPasswordReset(@RequestBody UpdatePasswordRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(accountService.requestResetPassword(request));
     }
 
-    @PatchMapping("/password-update")
-    public ResponseEntity<?> passwordUpdate(@RequestBody UpdatePasswordDTO request) {
+    @PatchMapping("/password-reset")
+    public ResponseEntity<?> passwordReset(@RequestBody UpdatePasswordDTO request) {
         accountService.resetPassword(request);
         return ResponseEntity.status(HttpStatus.OK)
                 .build();
