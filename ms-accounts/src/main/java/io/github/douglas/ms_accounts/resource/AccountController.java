@@ -70,6 +70,17 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @PostMapping("/change-email")
+    public ResponseEntity<?> requestEmailUpdate(@RequestBody ChangeEmailRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(accountService.changeEmailRequest(request));
+    }
 
+    @PatchMapping("/change-email")
+    public ResponseEntity<?> emailUpdate(@RequestBody ChangeEmailDTO request) {
+        accountService.changeEmail(request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .build();
+    }
 
 }
