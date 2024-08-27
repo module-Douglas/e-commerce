@@ -8,13 +8,13 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "tb_password_reset_codes")
-public class ResetCode {
+public class ConfirmationCode {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
     @Column(unique = true)
-    private String resetCode;
+    private String confirmationCode;
     @Column(unique = true)
     private String accountEmail;
     private LocalDateTime expiresAt;
@@ -29,12 +29,12 @@ public class ResetCode {
         this.createdAt = LocalDateTime.now();
     }
 
-    public ResetCode() {
+    public ConfirmationCode() {
 
     }
 
-    public ResetCode(String resetCode, String accountEmail, LocalDateTime expiresAt, Type type) {
-        this.resetCode = resetCode;
+    public ConfirmationCode(String confirmationCode, String accountEmail, LocalDateTime expiresAt, Type type) {
+        this.confirmationCode = confirmationCode;
         this.accountEmail = accountEmail;
         this.expiresAt = expiresAt;
         this.type = type;
@@ -49,11 +49,11 @@ public class ResetCode {
     }
 
     public String getResetCode() {
-        return resetCode;
+        return confirmationCode;
     }
 
-    public void setResetCode(String resetCode) {
-        this.resetCode = resetCode;
+    public void setResetCode(String confirmationCode) {
+        this.confirmationCode = confirmationCode;
     }
 
     public String getAccountEmail() {

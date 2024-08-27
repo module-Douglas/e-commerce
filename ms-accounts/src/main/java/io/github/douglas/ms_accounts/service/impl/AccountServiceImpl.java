@@ -5,8 +5,8 @@ import io.github.douglas.ms_accounts.config.exception.ValidationException;
 import io.github.douglas.ms_accounts.dto.*;
 import io.github.douglas.ms_accounts.enums.Type;
 import io.github.douglas.ms_accounts.model.entity.Account;
-import io.github.douglas.ms_accounts.model.entity.ResetCode;
-import io.github.douglas.ms_accounts.model.repository.ResetCodeRepository;
+import io.github.douglas.ms_accounts.model.entity.ConfirmationCode;
+import io.github.douglas.ms_accounts.model.repository.ConfirmationCodeRepository;
 import io.github.douglas.ms_accounts.model.repository.RoleRepository;
 import io.github.douglas.ms_accounts.model.repository.AccountRepository;
 import io.github.douglas.ms_accounts.service.TokenService;
@@ -31,7 +31,7 @@ import static java.lang.String.valueOf;
 public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
-    private final ResetCodeRepository resetCodeRepository;
+    private final ConfirmationCodeRepository confirmationCodeRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
@@ -40,7 +40,7 @@ public class AccountServiceImpl implements AccountService {
 
     public AccountServiceImpl(
             AccountRepository accountRepository,
-            ResetCodeRepository resetCodeRepository,
+            ConfirmationCodeRepository confirmationCodeRepository,
             RoleRepository roleRepository,
             PasswordEncoder passwordEncoder,
             TokenService tokenService,
@@ -48,7 +48,7 @@ public class AccountServiceImpl implements AccountService {
             JsonUtil jsonUtil
     ) {
         this.accountRepository = accountRepository;
-        this.resetCodeRepository = resetCodeRepository;
+        this.confirmationCodeRepository = confirmationCodeRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
@@ -90,16 +90,16 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public ResetCodeDTO requestResetPassword(UpdatePasswordRequestDTO request) {
-        accountRepository.findByEmail(request.accountEmail())
-                .orElseThrow(() -> new ResourceNotFoundException(accountNotFoundWithEmailMessage(request.accountEmail())));
+    public ResetCodeDTO requestResetPassword(String accountEmail) {
+        accountRepository.findByEmail(accountEmail)
+                .orElseThrow(() -> new ResourceNotFoundException(accountNotFoundWithEmailMessage(accountEmail)));
 
-        var resetCode = generateResetCode(request.accountEmail(), PASSWORD);
+        var resetCode = generateResetCode(accountEmail, PASSWORD);
 
-        var alreadyRegisteredCode = resetCodeRepository.findByAccountEmail(request.accountEmail());
-        alreadyRegisteredCode.ifPresent(resetCodeRepository::delete);
+        var alreadyRegisteredCode = confirmationCodeRepository.findByAccountEmail(accountEmail);
+        alreadyRegisteredCode.ifPresent(confirmationCodeRepository::delete);
 
-        resetCodeRepository.save(resetCode);
+        confirmationCodeRepository.save(resetCode);
         var message = format("Your password reset code is: %s", resetCode.getResetCode());
         kafkaProducer.sendMail(
                 jsonUtil.toJson(new EmailRequestDTO("UPDATE PASSWORD CONFIRMATION CODE", resetCode.getAccountEmail(), message))
@@ -110,7 +110,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void resetPassword(UpdatePasswordDTO request) {
-        var resetCode = resetCodeRepository.findByAccountEmail(request.accountEmail())
+        var resetCode = confirmationCodeRepository.findByAccountEmail(request.accountEmail())
                 .orElseThrow(() -> new ResourceNotFoundException(format("Cannot found a reset password request for this email: %s", request.accountEmail())));
 
         validateResetCode(request.validationCode(), resetCode);
@@ -122,24 +122,23 @@ public class AccountServiceImpl implements AccountService {
 
         account.setPassword(passwordEncoder.encode(request.password()));
         accountRepository.save(account);
-        resetCodeRepository.delete(resetCode);
+        confirmationCodeRepository.delete(resetCode);
     }
 
     @Override
-    public ResetCodeDTO changeEmailRequest(ChangeEmailRequestDTO request) {
-        var account = accountRepository.findById(request.accountId())
-                .orElseThrow(() -> new ResourceNotFoundException(accountNotFoundWithIdMessage(request.accountId())));
+    public ResetCodeDTO changeEmailRequest(String accountEmail) {
+        var account = accountRepository.findByEmail(accountEmail)
+                .orElseThrow(() -> new ResourceNotFoundException(accountNotFoundWithEmailMessage(accountEmail)));
 
-        if (!account.getEmail().equals(request.currentEmail()))
+        if (!account.getEmail().equals(accountEmail))
             throw new ValidationException("Something went wrong. Current email doesn't match with account registered email.");
-        emailCheck(request.newEmail());
 
-        var resetCode = generateResetCode(request.currentEmail(), EMAIL);
+        var resetCode = generateResetCode(accountEmail, EMAIL);
 
-        var alreadyRegisteredCode = resetCodeRepository.findByAccountEmail(account.getEmail());
-        alreadyRegisteredCode.ifPresent(resetCodeRepository::delete);
+        var alreadyRegisteredCode = confirmationCodeRepository.findByAccountEmail(account.getEmail());
+        alreadyRegisteredCode.ifPresent(confirmationCodeRepository::delete);
 
-        resetCodeRepository.save(resetCode);
+        confirmationCodeRepository.save(resetCode);
         var message = format("Your change email confirmation code is: %s", resetCode.getResetCode());
         kafkaProducer.sendMail(
                 jsonUtil.toJson(new EmailRequestDTO("UPDATE EMAIL CONFIRMATION CODE", resetCode.getAccountEmail(), message))
@@ -150,7 +149,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void changeEmail(ChangeEmailDTO request) {
-        var resetCode = resetCodeRepository.findByAccountEmail(request.currentEmail())
+        var resetCode = confirmationCodeRepository.findByAccountEmail(request.currentEmail())
                 .orElseThrow(() -> new ResourceNotFoundException(format("Cannot found a reset password request for this email: %s.", request.currentEmail())));
 
         validateResetCode(request.resetCode(), resetCode);
@@ -161,7 +160,7 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException(accountNotFoundWithEmailMessage(request.currentEmail())));
         account.setEmail(request.newEmail());
         accountRepository.save(account);
-        resetCodeRepository.delete(resetCode);
+        confirmationCodeRepository.delete(resetCode);
     }
 
     @Override
@@ -205,13 +204,13 @@ public class AccountServiceImpl implements AccountService {
         return passwordEncoder.matches(password, account.getPassword());
     }
 
-    private void validateResetCode(String request, ResetCode resetCode) {
-        if (resetCode.getExpiresAt().isBefore(LocalDateTime.now())) {
-            resetCodeRepository.delete(resetCode);
+    private void validateResetCode(String request, ConfirmationCode confirmationCode) {
+        if (confirmationCode.getExpiresAt().isBefore(LocalDateTime.now())) {
+            confirmationCodeRepository.delete(confirmationCode);
             throw new ValidationException("Expired Reset Code. Please do a new reset password request.");
         }
 
-        if (!request.equals(resetCode.getResetCode()))
+        if (!request.equals(confirmationCode.getResetCode()))
             throw new ValidationException("Invalid Reset Code.");
     }
 
@@ -225,9 +224,9 @@ public class AccountServiceImpl implements AccountService {
             throw new ValidationException("Reset code Type doesn't match with requested resource.");
     }
 
-    private static ResetCode generateResetCode(String accountEmail, Type type) {
+    private static ConfirmationCode generateResetCode(String accountEmail, Type type) {
         var code = 100_000 + (int)(Math.random() * ((999_999 - 100_000) + 1));
-        return new ResetCode(
+        return new ConfirmationCode(
                 valueOf(code),
                 accountEmail,
                 LocalDateTime.now().plusMinutes(3),

@@ -3,6 +3,7 @@ package io.github.douglas.ms_accounts.resource;
 import io.github.douglas.ms_accounts.dto.*;
 import io.github.douglas.ms_accounts.service.TokenService;
 import io.github.douglas.ms_accounts.service.AccountService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,15 +41,15 @@ public class AccountController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> generateNewAccessToken(@RequestBody RefreshTokenDTO request) {
+    public ResponseEntity<?> generateNewAccessToken(@RequestBody String request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(tokenService.generateTokensByRefreshToken(request));
     }
 
     @PostMapping("/password-reset")
-    public ResponseEntity<?> requestPasswordReset(@RequestBody UpdatePasswordRequestDTO request) {
+    public ResponseEntity<?> requestPasswordReset(@RequestBody String accountEmail) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(accountService.requestResetPassword(request));
+                .body(accountService.requestResetPassword(accountEmail));
     }
 
     @PatchMapping("/password-reset")
@@ -71,9 +72,9 @@ public class AccountController {
     }
 
     @PostMapping("/change-email")
-    public ResponseEntity<?> requestEmailUpdate(@RequestBody ChangeEmailRequestDTO request) {
+    public ResponseEntity<?> requestEmailUpdate(@RequestBody String accountEmail) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(accountService.changeEmailRequest(request));
+                .body(accountService.changeEmailRequest(accountEmail));
     }
 
     @PatchMapping("/change-email")

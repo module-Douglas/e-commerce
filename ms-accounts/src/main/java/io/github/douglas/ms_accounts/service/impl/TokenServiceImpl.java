@@ -2,7 +2,6 @@ package io.github.douglas.ms_accounts.service.impl;
 
 import io.github.douglas.ms_accounts.config.exception.ValidationException;
 import io.github.douglas.ms_accounts.dto.AccessTokenDTO;
-import io.github.douglas.ms_accounts.dto.RefreshTokenDTO;
 import io.github.douglas.ms_accounts.model.entity.RefreshToken;
 import io.github.douglas.ms_accounts.model.entity.Account;
 import io.github.douglas.ms_accounts.model.repository.RefreshTokenRepository;
@@ -63,8 +62,8 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public AccessTokenDTO generateTokensByRefreshToken(RefreshTokenDTO request) {
-        var refreshToken = refreshTokenRepository.findByRefreshToken(request.refreshToken())
+    public AccessTokenDTO generateTokensByRefreshToken(String request) {
+        var refreshToken = refreshTokenRepository.findByRefreshToken(request)
                 .orElseThrow(() -> new AuthenticationException("Invalid refresh token. Please do login again."));
         verifyExpiration(refreshToken);
 
