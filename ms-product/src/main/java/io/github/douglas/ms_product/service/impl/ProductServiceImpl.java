@@ -87,7 +87,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void linkInventory(String payload) {
         var link = jsonUtil.toLinkInventory(payload);
-        var product = productRepository.findById(link.inventoryId())
+        var product = productRepository.findById(link.productId())
                 .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s.", link.productId())));
 
         product.setInventoryId(link.inventoryId());

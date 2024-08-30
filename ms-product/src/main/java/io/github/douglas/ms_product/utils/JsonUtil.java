@@ -1,6 +1,7 @@
 package io.github.douglas.ms_product.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.douglas.ms_product.config.exception.ValidationException;
 import io.github.douglas.ms_product.dto.LinkInventory;
 import io.github.douglas.ms_product.dto.event.Event;
 import org.springframework.stereotype.Component;
@@ -34,7 +35,7 @@ public class JsonUtil {
         try {
             return objectMapper.readValue(payload, LinkInventory.class);
         } catch (Exception e) {
-            return null;
+            throw new ValidationException("some test" + e.getMessage());
         }
     }
 

@@ -10,6 +10,8 @@ import io.github.douglas.ms_order.service.OrderService;
 import io.github.douglas.ms_order.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -17,6 +19,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -81,11 +84,31 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public PageImpl<OrderDTO> getAll(Pageable pageRequest) {
+        List<OrderDTO> response = orderRepository.findAll(pageRequest)
+                .stream()
+                .map(jsonUtil::toOrderDTO)
+                .toList();
+
+        return new PageImpl<>(response, pageRequest, response.size());
+    }
+
+    @Override
     public OrderDTO getOrderDetails(String id) {
         return jsonUtil.toOrderDTO(
                 orderRepository.findById(id)
                         .orElseThrow(() -> new ResourceNotFoundException(format("Order not found with id: %s", id)))
         );
+    }
+
+    @Override
+    public PageImpl<OrderDTO> getAllOrderByUser(UUID accountId, Pageable pageRequest) {
+        List<OrderDTO> response = orderRepository.findAllByAccountDetails_UserId(accountId, pageRequest)
+                .stream()
+                .map(jsonUtil::toOrderDTO)
+                .toList();
+
+        return new PageImpl<>(response, pageRequest, response.size());
     }
 
     private BigDecimal calculateTotalAmount(OrderRequest request) {

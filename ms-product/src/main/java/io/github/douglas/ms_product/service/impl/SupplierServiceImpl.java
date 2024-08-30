@@ -44,7 +44,7 @@ public class SupplierServiceImpl implements SupplierService {
         var supplier = new Supplier(
                 request.name().toUpperCase(),
                 request.email(),
-                request.cnpj(),
+                cleanCnpj(request.cnpj()),
                 request.phoneNumber());
 
         return new SupplierDTO(
