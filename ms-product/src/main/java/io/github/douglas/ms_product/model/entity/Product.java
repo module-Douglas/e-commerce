@@ -3,6 +3,7 @@ package io.github.douglas.ms_product.model.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.github.douglas.ms_product.dto.ProductDTO;
+import io.github.douglas.ms_product.enums.Status;
 import jakarta.persistence.*;
 import org.springframework.beans.BeanUtils;
 
@@ -23,6 +24,7 @@ public class Product {
     private String description;
     private BigDecimal unitValue;
     private UUID inventoryId;
+    private Status status;
     @ManyToOne
     @JoinColumn(name = "brand_id")
     private Brand brand;
@@ -56,11 +58,12 @@ public class Product {
 
     }
 
-    public Product(String name, String description, Brand brand, BigDecimal unitValue, Set<Category> categories, Supplier supplier) {
+    public Product(String name, String description, Brand brand, BigDecimal unitValue, Status status, Set<Category> categories, Supplier supplier) {
         this.name = name;
         this.description = description;
         this.brand = brand;
         this.unitValue = unitValue;
+        this.status = status;
         this.categories = categories;
         this.supplier = supplier;
     }
@@ -103,6 +106,14 @@ public class Product {
 
     public void setInventoryId(UUID inventoryId) {
         this.inventoryId = inventoryId;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public Brand getBrand() {

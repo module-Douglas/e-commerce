@@ -39,8 +39,15 @@ public class OrderController {
     }
 
     @GetMapping("/account/{id}")
-    public ResponseEntity<?> getOrdersByAccountId(@PathVariable("id") UUID id, Pageable pageRequest) {
+    public ResponseEntity<?> getOrdersByAccount(@PathVariable("id") UUID id, Pageable pageRequest) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(orderService.getAllOrderByUser(id, pageRequest));
+    }
+
+    @PatchMapping
+    public ResponseEntity<?> cancelOrder(@RequestBody String orderId) {
+        orderService.cancelOrder(orderId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .build();
     }
 }

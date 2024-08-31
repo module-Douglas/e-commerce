@@ -1,5 +1,6 @@
 package io.github.douglas.ms_product.dto;
 
+import io.github.douglas.ms_product.enums.Status;
 import io.github.douglas.ms_product.model.entity.Category;
 import io.github.douglas.ms_product.model.entity.Product;
 
@@ -15,6 +16,7 @@ public record ProductDTO(
         String description,
         UUID brandId,
         UUID inventoryId,
+        Status status,
         UUID supplierId,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
@@ -28,6 +30,7 @@ public record ProductDTO(
                 product.getDescription(),
                 product.getBrand().getId(),
                 product.getInventoryId(),
+                product.getStatus(),
                 product.getSupplier().getId(),
                 product.getCreatedAt(),
                 product.getUpdatedAt(),

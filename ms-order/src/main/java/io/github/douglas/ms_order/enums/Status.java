@@ -5,5 +5,6 @@ public enum Status {
     SUCCESS,
     FAIL,
     PENDING,
-    ROLLBACK_PENDING;
+    ROLLBACK_PENDING,
+    CANCELED;
 }

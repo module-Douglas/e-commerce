@@ -4,27 +4,27 @@ import java.util.UUID;
 
 public class AccountDetails {
 
-    private UUID userId;
+    private UUID accountId;
     private String email;
 
     public AccountDetails() {
     }
 
-    public AccountDetails(UUID userId) {
-        this.userId = userId;
+    public AccountDetails(UUID accountId) {
+        this.accountId = accountId;
     }
 
-    public AccountDetails(UUID userId, String email) {
-        this.userId = userId;
+    public AccountDetails(UUID accountId, String email) {
+        this.accountId = accountId;
         this.email = email;
     }
 
     public UUID getUserId() {
-        return userId;
+        return accountId;
     }
 
-    public void setUserId(UUID userId) {
-        this.userId = userId;
+    public void setUserId(UUID accountId) {
+        this.accountId = accountId;
     }
 
     public String getEmail() {

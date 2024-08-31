@@ -18,4 +18,6 @@ public interface OrderService {
     OrderDTO getOrderDetails(String id);
 
     PageImpl<OrderDTO> getAllOrderByUser(UUID accountId, Pageable pageRequest);
+
+    void cancelOrder(String orderId);
 }

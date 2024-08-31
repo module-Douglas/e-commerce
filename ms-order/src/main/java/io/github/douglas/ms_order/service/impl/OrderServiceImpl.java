@@ -24,8 +24,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static io.github.douglas.ms_order.enums.Sources.MS_ORDER;
-import static io.github.douglas.ms_order.enums.Status.PENDING;
-import static io.github.douglas.ms_order.enums.Status.SUCCESS;
+import static io.github.douglas.ms_order.enums.Status.*;
 import static java.lang.String.format;
 
 @Service
@@ -109,6 +108,15 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
 
         return new PageImpl<>(response, pageRequest, response.size());
+    }
+
+    @Override
+    public void cancelOrder(String orderId) {
+        var order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException(format("Order not found with id: %s.", orderId)));
+
+        order.setStatus(CANCELED);
+        orderRepository.save(order);
     }
 
     private BigDecimal calculateTotalAmount(OrderRequest request) {

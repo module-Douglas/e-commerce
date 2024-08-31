@@ -29,6 +29,8 @@ import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.github.douglas.ms_product.enums.Status.AVAILABLE;
+import static io.github.douglas.ms_product.enums.Status.OUT_OF_STOCK;
 import static java.lang.String.format;
 
 @Service
@@ -67,6 +69,7 @@ public class ProductServiceImpl implements ProductService {
                 request.description(),
                 brand,
                 request.unitValue(),
+                request.stockAmount() > 0 ? AVAILABLE : OUT_OF_STOCK,
                 categories,
                 supplier
         ));
@@ -146,7 +149,7 @@ public class ProductServiceImpl implements ProductService {
         product.setUnitValue(request.unitValue());
 
         kafkaProducer.sendInventoryUpdate(
-                jsonUtil.toJson(new UpdateInventoryDTO(product.getId(), request.unitValue()))
+                jsonUtil.toJson(new UpdateInventoryDTO(product.getInventoryId(), product.getId(), request.unitValue()))
         );
         return new ProductDTO(
                 productRepository.save(product)
