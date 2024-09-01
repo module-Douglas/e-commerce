@@ -1,5 +1,6 @@
 package io.github.douglas.ms_inventory.dto;
 
+import io.github.douglas.ms_inventory.enums.Status;
 import io.github.douglas.ms_inventory.model.entity.Inventory;
 import org.springframework.beans.BeanUtils;
 
@@ -12,6 +13,7 @@ public record InventoryDTO(
         UUID productId,
         BigDecimal unitValue,
         Long stockAmount,
+        Status status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
@@ -21,6 +23,7 @@ public record InventoryDTO(
                 inventory.getProductId(),
                 inventory.getUnitValue(),
                 inventory.getStockAmount(),
+                inventory.getStatus(),
                 inventory.getCreatedAt(),
                 inventory.getUpdatedAt()
         );

@@ -24,6 +24,7 @@ public class Product {
     private String description;
     private BigDecimal unitValue;
     private UUID inventoryId;
+    @Enumerated(EnumType.STRING)
     private Status status;
     @ManyToOne
     @JoinColumn(name = "brand_id")

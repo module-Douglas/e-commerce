@@ -66,6 +66,16 @@ public class KafkaConfig {
         return buildTopic(SEND_EMAIL.getTopic());
     }
 
+    @Bean
+    public NewTopic linkInventory() {
+        return buildTopic(LINK_INVENTORY.getTopic());
+    }
+
+    @Bean
+    public NewTopic updateProductStatus() {
+        return buildTopic(UPDATE_PRODUCT_STATUS.getTopic());
+    }
+
     private Map<String, Object> consumerProperties() {
         var props = new HashMap<String, Object>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);

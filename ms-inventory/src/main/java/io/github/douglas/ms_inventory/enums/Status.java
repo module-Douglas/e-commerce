@@ -5,7 +5,9 @@ public enum Status {
     SUCCESS,
     PENDING,
     ROLLBACK_PENDING,
-    FAIL;
+    FAIL,
+    AVAILABLE,
+    OUT_OF_STOCK;
 
 
 }

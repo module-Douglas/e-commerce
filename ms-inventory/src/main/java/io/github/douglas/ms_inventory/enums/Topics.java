@@ -7,7 +7,8 @@ public enum Topics {
     INVENTORY_VALIDATION("inventory-validation"),
     INVENTORY_ROLLBACK("inventory-rollback"),
     SEND_EMAIL("send-email"),
-    LINK_INVENTORY("link-inventory");
+    LINK_INVENTORY("link-inventory"),
+    UPDATE_PRODUCT_STATUS("update-product-status");
 
     private final String topic;
 

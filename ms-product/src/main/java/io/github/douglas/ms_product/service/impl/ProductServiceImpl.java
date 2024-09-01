@@ -1,6 +1,7 @@
 package io.github.douglas.ms_product.service.impl;
 
 import io.github.douglas.ms_product.broker.KafkaProducer;
+import io.github.douglas.ms_product.config.exception.ValidationException;
 import io.github.douglas.ms_product.dto.ProductDTO;
 import io.github.douglas.ms_product.dto.RegisterProductDTO;
 import io.github.douglas.ms_product.dto.RegisterInventoryDTO;
@@ -111,7 +112,7 @@ public class ProductServiceImpl implements ProductService {
     public PageImpl<ProductDTO> getAll(String name, String brand, UUID[] categories, UUID supplierId, Pageable pageRequest) {
         Product product = new Product();
         product.setName(name);
-        product.setBrand(getBrand(brand));
+        product.setBrand(new Brand(brand));
         product.setSupplier(new Supplier(supplierId));
 
         if(!(categories == null)) {
@@ -154,6 +155,19 @@ public class ProductServiceImpl implements ProductService {
         return new ProductDTO(
                 productRepository.save(product)
         );
+    }
+
+    @Override
+    public void updateProductStatus(String payload) {
+        var inventory = jsonUtil.toUpdateStatus(payload);
+        var product = productRepository.findById(inventory.productId())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s.", inventory.productId())));
+
+        if (!product.getInventoryId().equals(inventory.inventoryId()))
+            throw new ValidationException(format("Inventory id from update request doesn't match with specified product: %s.", product.getId()));
+
+        product.setStatus(inventory.status());
+        productRepository.save(product);
     }
 
     private Set<Category> getCategories(Set<UUID> categories) {

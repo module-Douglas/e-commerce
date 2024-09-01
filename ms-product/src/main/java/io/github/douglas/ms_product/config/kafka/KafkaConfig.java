@@ -66,6 +66,16 @@ public class KafkaConfig {
         return buildTopic(REGISTER_INVENTORY.getTopic());
     }
 
+    @Bean
+    public NewTopic linkInventory() {
+        return buildTopic(LINK_INVENTORY.getTopic());
+    }
+
+    @Bean
+    public NewTopic updateStatus() {
+        return buildTopic(UPDATE_PRODUCT_STATUS.getTopic());
+    }
+
     private NewTopic buildTopic(String name) {
         return TopicBuilder
                 .name(name)

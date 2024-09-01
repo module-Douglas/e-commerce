@@ -46,4 +46,11 @@ public class KafkaConsumer {
         productService.linkInventory(payload);
     }
 
+    @KafkaListener(
+            groupId = "${spring.kafka.consumer.group-id}",
+            topics = "${spring.kafka.topic.update-product-status}"
+    )
+    public void consumeUpdateStatus(String payload) {
+        productService.updateProductStatus(payload);
+    }
 }

@@ -1,6 +1,7 @@
 package io.github.douglas.ms_inventory.model.entity;
 
 import io.github.douglas.ms_inventory.dto.InventoryDTO;
+import io.github.douglas.ms_inventory.enums.Status;
 import jakarta.persistence.*;
 import org.springframework.beans.BeanUtils;
 
@@ -18,6 +19,8 @@ public class Inventory {
     private UUID productId;
     private BigDecimal unitValue;
     private Long stockAmount;
+    @Enumerated(EnumType.STRING)
+    private Status status;
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
@@ -80,6 +83,14 @@ public class Inventory {
 
     public void setStockAmount(Long stockAmount) {
         this.stockAmount = stockAmount;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public LocalDateTime getCreatedAt() {

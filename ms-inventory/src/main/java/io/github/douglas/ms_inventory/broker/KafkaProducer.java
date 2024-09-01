@@ -44,4 +44,12 @@ public class KafkaProducer {
 
         }
     }
+
+    public void sendUpdateStatus(String payload) {
+        try {
+            kafkaTemplate.send(UPDATE_PRODUCT_STATUS.getTopic(), payload);
+        } catch (Exception e) {
+
+        }
+    }
 }

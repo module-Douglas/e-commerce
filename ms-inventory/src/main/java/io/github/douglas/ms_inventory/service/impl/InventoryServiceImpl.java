@@ -4,6 +4,7 @@ import io.github.douglas.ms_inventory.broker.KafkaProducer;
 import io.github.douglas.ms_inventory.config.exception.ValidationException;
 import io.github.douglas.ms_inventory.dto.InventoryDTO;
 import io.github.douglas.ms_inventory.dto.LinkInventory;
+import io.github.douglas.ms_inventory.dto.UpdateProductStatusDTO;
 import io.github.douglas.ms_inventory.dto.event.Event;
 import io.github.douglas.ms_inventory.dto.event.History;
 import io.github.douglas.ms_inventory.dto.event.Product;
@@ -49,9 +50,11 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public void registerInventory(String payload) {
-        var inventory = inventoryRepository.save(
-                jsonUtil.toInventory(payload)
-        );
+        var inventory = jsonUtil.toInventory(payload);
+        inventory.setStatus(inventory.getStockAmount() == 0 ? OUT_OF_STOCK : AVAILABLE);
+
+        inventoryRepository.save(inventory);
+
         kafkaProducer.sendInventoryLink(
                 jsonUtil.toJson(new LinkInventory(inventory.getProductId(), inventory.getId()))
         );
@@ -142,8 +145,11 @@ public class InventoryServiceImpl implements InventoryService {
         event.products()
                 .forEach(product -> {
                     var inventory = getInventoryByProductId(product.productId());
-                    checkInventory(inventory.getStockAmount(), product.quantity());
+                    if (inventory.getStatus() == AVAILABLE)
+                        checkInventory(inventory.getStockAmount(), product.quantity());
                     inventory.setStockAmount(inventory.getStockAmount() - product.quantity());
+                    inventory.setStatus(inventory.getStockAmount() == 0 ? OUT_OF_STOCK : AVAILABLE);
+                    updateProductStatus(inventory);
                     inventoryRepository.save(inventory);
                 });
     }
@@ -183,5 +189,10 @@ public class InventoryServiceImpl implements InventoryService {
                     log.info("Restored inventory {} for order {} from {} to {}",
                             inventory.getId(), event.id(), inventoryHistoric.getNewQuantity(), inventoryHistoric.getOldQuantity());
                 });
+    }
+
+    private void updateProductStatus(Inventory inventory) {
+        kafkaProducer.sendUpdateStatus(
+                jsonUtil.toJson(new UpdateProductStatusDTO(inventory.getId(), inventory.getProductId(), inventory.getStatus())));
     }
 }

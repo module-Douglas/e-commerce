@@ -122,7 +122,7 @@ public class OrderServiceImpl implements OrderService {
     private BigDecimal calculateTotalAmount(OrderRequest request) {
         BigDecimal sum = BigDecimal.ZERO;
         for (var product : request.products()) {
-            sum = sum.add(product.unitValue());
+            sum = sum.add(product.unitValue().multiply(BigDecimal.valueOf(product.quantity())));
         }
         return sum;
     }

@@ -14,13 +14,13 @@ public record ProductDTO(
         UUID id,
         String name,
         String description,
-        UUID brandId,
+        String brand,
         UUID inventoryId,
         Status status,
         UUID supplierId,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        Set<UUID> categories
+        Set<CategoryDTO> categories
 ) implements Serializable {
 
     public ProductDTO(Product product) {
@@ -28,14 +28,14 @@ public record ProductDTO(
                 product.getId(),
                 product.getName(),
                 product.getDescription(),
-                product.getBrand().getId(),
+                product.getBrand().getName(),
                 product.getInventoryId(),
                 product.getStatus(),
                 product.getSupplier().getId(),
                 product.getCreatedAt(),
                 product.getUpdatedAt(),
                 product.getCategories().stream()
-                        .map(Category::getId)
+                        .map(CategoryDTO::new)
                         .collect(Collectors.toSet())
         );
     }

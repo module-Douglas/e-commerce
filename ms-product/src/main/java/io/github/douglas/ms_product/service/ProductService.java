@@ -22,4 +22,6 @@ public interface ProductService {
     void deleteProduct(UUID id);
 
     ProductDTO updateProduct(RegisterProductDTO request);
+
+    void updateProductStatus(String payload);
 }

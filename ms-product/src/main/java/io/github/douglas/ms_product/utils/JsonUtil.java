@@ -3,6 +3,7 @@ package io.github.douglas.ms_product.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.douglas.ms_product.config.exception.ValidationException;
 import io.github.douglas.ms_product.dto.LinkInventory;
+import io.github.douglas.ms_product.dto.UpdateProductStatusDTO;
 import io.github.douglas.ms_product.dto.event.Event;
 import org.springframework.stereotype.Component;
 
@@ -36,6 +37,14 @@ public class JsonUtil {
             return objectMapper.readValue(payload, LinkInventory.class);
         } catch (Exception e) {
             throw new ValidationException("some test" + e.getMessage());
+        }
+    }
+
+    public UpdateProductStatusDTO toUpdateStatus(String payload) {
+        try {
+            return objectMapper.readValue(payload, UpdateProductStatusDTO.class);
+        } catch (Exception e) {
+            return null;
         }
     }
 
