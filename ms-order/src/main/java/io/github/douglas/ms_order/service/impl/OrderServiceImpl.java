@@ -2,6 +2,7 @@ package io.github.douglas.ms_order.service.impl;
 
 import io.github.douglas.ms_order.broker.KafkaProducer;
 import io.github.douglas.ms_order.config.exception.ResourceNotFoundException;
+import io.github.douglas.ms_order.dto.BasicOrderDTO;
 import io.github.douglas.ms_order.dto.OrderRequest;
 import io.github.douglas.ms_order.dto.order.OrderDTO;
 import io.github.douglas.ms_order.model.entity.*;
@@ -83,10 +84,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public PageImpl<OrderDTO> getAll(Pageable pageRequest) {
-        List<OrderDTO> response = orderRepository.findAll(pageRequest)
+    public PageImpl<BasicOrderDTO> getAll(Pageable pageRequest) {
+        List<BasicOrderDTO> response = orderRepository.findAll(pageRequest)
                 .stream()
-                .map(jsonUtil::toOrderDTO)
+                .map(BasicOrderDTO::new)
                 .toList();
 
         return new PageImpl<>(response, pageRequest, response.size());
@@ -94,17 +95,17 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO getOrderDetails(String id) {
-        return jsonUtil.toOrderDTO(
+        return new OrderDTO(
                 orderRepository.findById(id)
                         .orElseThrow(() -> new ResourceNotFoundException(format("Order not found with id: %s", id)))
         );
     }
 
     @Override
-    public PageImpl<OrderDTO> getAllOrderByUser(UUID accountId, Pageable pageRequest) {
-        List<OrderDTO> response = orderRepository.findAllByAccountDetails_UserId(accountId, pageRequest)
+    public PageImpl<BasicOrderDTO> getAllOrderByUser(UUID accountId, Pageable pageRequest) {
+        List<BasicOrderDTO> response = orderRepository.findAllByAccountDetails_UserId(accountId, pageRequest)
                 .stream()
-                .map(jsonUtil::toOrderDTO)
+                .map(BasicOrderDTO::new)
                 .toList();
 
         return new PageImpl<>(response, pageRequest, response.size());

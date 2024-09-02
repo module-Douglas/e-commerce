@@ -1,5 +1,6 @@
 package io.github.douglas.ms_order.service;
 
+import io.github.douglas.ms_order.dto.BasicOrderDTO;
 import io.github.douglas.ms_order.dto.OrderRequest;
 import io.github.douglas.ms_order.dto.order.OrderDTO;
 import org.springframework.data.domain.PageImpl;
@@ -13,11 +14,11 @@ public interface OrderService {
 
     void updateOrderStatus(String payload);
 
-    PageImpl<OrderDTO> getAll(Pageable pageRequest);
+    PageImpl<BasicOrderDTO> getAll(Pageable pageRequest);
 
     OrderDTO getOrderDetails(String id);
 
-    PageImpl<OrderDTO> getAllOrderByUser(UUID accountId, Pageable pageRequest);
+    PageImpl<BasicOrderDTO> getAllOrderByUser(UUID accountId, Pageable pageRequest);
 
     void cancelOrder(String orderId);
 }
