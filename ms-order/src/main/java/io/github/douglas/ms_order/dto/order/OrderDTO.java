@@ -7,6 +7,7 @@ import io.github.douglas.ms_order.model.entity.Order;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,7 +21,7 @@ public record OrderDTO(
         LocalDateTime createdAt,
         Status status,
         Set<ProductDTO> products,
-        Set<HistoryDTO> historic
+        List<HistoryDTO> historic
 ) {
     public OrderDTO(Order order) {
         this(
@@ -48,7 +49,7 @@ public record OrderDTO(
                         .collect(Collectors.toSet()),
                 order.getHistoric().stream()
                         .map(HistoryDTO::new)
-                        .collect(Collectors.toSet())
+                        .toList()
         );
     }
 }

@@ -20,8 +20,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.github.douglas.ms_order.enums.Sources.MS_ORDER;
@@ -95,10 +94,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO getOrderDetails(String id) {
-        return new OrderDTO(
-                orderRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException(format("Order not found with id: %s", id)))
-        );
+        var order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(format("Order not found with id: %s", id)));
+        return new OrderDTO(order);
     }
 
     @Override

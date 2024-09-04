@@ -7,7 +7,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -26,13 +28,22 @@ public class Order {
     private Sources currentSource;
     private Status status;
     private Set<Product> products;
-    private Set<History> historic = new HashSet<>();
+    private List<History> historic = new ArrayList<>();
 
     public Order() {
 
     }
 
-    public Order(String id, String transactionId, AccountDetails accountDetails, DeliveryAddress deliveryAddress, BigDecimal totalAmount, Long totalItems, LocalDateTime createdAt, Sources source, Sources currentSource, Status status, Set<Product> products, Set<History> historic) {
+    public Order(String id,
+                 String transactionId,
+                 AccountDetails accountDetails,
+                 DeliveryAddress deliveryAddress,
+                 BigDecimal totalAmount, Long totalItems,
+                 LocalDateTime createdAt, Sources source,
+                 Sources currentSource,
+                 Status status,
+                 Set<Product> products,
+                 List<History> historic) {
         this.id = id;
         this.transactionId = transactionId;
         this.accountDetails = accountDetails;
@@ -135,11 +146,11 @@ public class Order {
         this.products = products;
     }
 
-    public Set<History> getHistoric() {
+    public List<History> getHistoric() {
         return historic;
     }
 
-    public void setHistoric(Set<History> historic) {
+    public void setHistoric(List<History> historic) {
         this.historic = historic;
     }
 }
