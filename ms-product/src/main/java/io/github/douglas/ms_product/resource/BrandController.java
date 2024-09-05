@@ -1,6 +1,7 @@
 package io.github.douglas.ms_product.resource;
 
 import io.github.douglas.ms_product.dto.BrandDTO;
+import io.github.douglas.ms_product.dto.GenericIdHandler;
 import io.github.douglas.ms_product.service.BrandService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -25,16 +26,16 @@ public class BrandController {
                 .body(brandService.registerBrand(request));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable("id") UUID request) {
+    @GetMapping
+    public ResponseEntity<?> getById(@RequestBody GenericIdHandler request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(brandService.getBrandById(request));
     }
 
-    @GetMapping
-    public ResponseEntity<?> getAll(Pageable pageRequest) {
+    @GetMapping("/all")
+    public ResponseEntity<?> getAll() {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(brandService.getAllBrands(pageRequest));
+                .body(brandService.getAllBrands());
     }
 
     @PatchMapping
@@ -44,7 +45,7 @@ public class BrandController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteBrand(@RequestBody BrandDTO request) {
+    public ResponseEntity<?> deleteBrand(@RequestBody GenericIdHandler request) {
         brandService.deleteBrand(request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .build();

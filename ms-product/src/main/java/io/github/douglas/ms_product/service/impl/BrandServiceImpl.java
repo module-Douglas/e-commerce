@@ -1,16 +1,16 @@
 package io.github.douglas.ms_product.service.impl;
 
 import io.github.douglas.ms_product.dto.BrandDTO;
+import io.github.douglas.ms_product.dto.GenericIdHandler;
 import io.github.douglas.ms_product.model.entity.Brand;
 import io.github.douglas.ms_product.model.repository.BrandRepository;
 import io.github.douglas.ms_product.service.BrandService;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 import static java.lang.String.format;
@@ -31,22 +31,21 @@ public class BrandServiceImpl implements BrandService {
                 brandRepository.save(new Brand(request.name().toUpperCase())));
     }
 
-    @Cacheable(value = "brand", key = "#id")
+    @Cacheable(value = "brand", key = "#request.id()")
     @Override
-    public BrandDTO getBrandById(UUID id) {
+    public BrandDTO getBrandById(GenericIdHandler request) {
         return new BrandDTO(
-                brandRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException(brandNotFoundMessage(id))));
+                brandRepository.findById(request.id())
+                        .orElseThrow(() -> new ResourceNotFoundException(brandNotFoundMessage(request.id()))));
     }
 
     @Cacheable(value = "brands")
     @Override
-    public PageImpl<BrandDTO> getAllBrands(Pageable pageRequest) {
-        var response = brandRepository.findAll(pageRequest)
+    public List<BrandDTO> getAllBrands() {
+        return brandRepository.findAll()
                 .stream()
                 .map(BrandDTO::new)
                 .toList();
-        return new PageImpl<>(response, pageRequest, response.size());
     }
 
     @Override
@@ -60,7 +59,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public void deleteBrand(BrandDTO request) {
+    public void deleteBrand(GenericIdHandler request) {
         var brand = brandRepository.findById(request.id())
                 .orElseThrow(() -> new ResourceNotFoundException(brandNotFoundMessage(request.id())));
         if (!brand.getProduct().isEmpty())

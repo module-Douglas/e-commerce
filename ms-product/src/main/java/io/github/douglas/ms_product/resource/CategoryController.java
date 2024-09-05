@@ -1,6 +1,7 @@
 package io.github.douglas.ms_product.resource;
 
 import io.github.douglas.ms_product.dto.CategoryDTO;
+import io.github.douglas.ms_product.dto.GenericIdHandler;
 import io.github.douglas.ms_product.service.CategoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,20 +25,20 @@ public class CategoryController {
                 .body(categoryService.registerCategory(request));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable("id")UUID request) {
+    @GetMapping
+    public ResponseEntity<?> getById(@RequestBody GenericIdHandler request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(categoryService.getCategoryById(request));
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<?> getAll() {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(categoryService.getAll());
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteCategory(@RequestBody CategoryDTO request) {
+    public ResponseEntity<?> deleteCategory(@RequestBody GenericIdHandler request) {
         categoryService.deleteCategory(request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

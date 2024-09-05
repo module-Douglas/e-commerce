@@ -1,5 +1,6 @@
 package io.github.douglas.ms_product.resource;
 
+import io.github.douglas.ms_product.dto.GenericIdHandler;
 import io.github.douglas.ms_product.dto.SupplierDTO;
 import io.github.douglas.ms_product.service.SupplierService;
 import org.springframework.http.HttpStatus;
@@ -24,8 +25,8 @@ public class SupplierController {
                 .body(supplierService.registerSupplier(request));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable("id")UUID request) {
+    @GetMapping
+    public ResponseEntity<?> getById(@RequestBody GenericIdHandler request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(supplierService.getSupplierDetails(request));
     }
@@ -37,7 +38,7 @@ public class SupplierController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteSupplier(@RequestBody SupplierDTO request) {
+    public ResponseEntity<?> deleteSupplier(@RequestBody GenericIdHandler request) {
         supplierService.deleteSupplier(request);
         return ResponseEntity.status(HttpStatus.OK)
                 .build();

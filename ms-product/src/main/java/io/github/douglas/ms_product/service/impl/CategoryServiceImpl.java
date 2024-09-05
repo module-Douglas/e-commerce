@@ -1,6 +1,7 @@
 package io.github.douglas.ms_product.service.impl;
 
 import io.github.douglas.ms_product.dto.CategoryDTO;
+import io.github.douglas.ms_product.dto.GenericIdHandler;
 import io.github.douglas.ms_product.model.entity.Category;
 import io.github.douglas.ms_product.model.repository.CategoryRepository;
 import io.github.douglas.ms_product.service.CategoryService;
@@ -10,7 +11,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 import static java.lang.String.format;
 
@@ -30,12 +30,12 @@ public class CategoryServiceImpl implements CategoryService {
                 categoryRepository.save(new Category(request.name().toUpperCase())));
     }
 
-    @Cacheable(value = "category", key = "#id")
+    @Cacheable(value = "category", key = "#request.id()")
     @Override
-    public CategoryDTO getCategoryById(UUID id) {
+    public CategoryDTO getCategoryById(GenericIdHandler request) {
         return new CategoryDTO(
-                categoryRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException(format("Category not found with id: %s", id))));
+                categoryRepository.findById(request.id())
+                        .orElseThrow(() -> new ResourceNotFoundException(format("Category not found with id: %s", request.id()))));
     }
 
     @Cacheable(value = "categories")
@@ -48,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteCategory(CategoryDTO request) {
+    public void deleteCategory(GenericIdHandler request) {
         var category = categoryRepository.findById(request.id())
                     .orElseThrow(() -> new ResourceNotFoundException(format("Category not found with id: %s", request.id())));
         if(!category.getProducts().isEmpty())

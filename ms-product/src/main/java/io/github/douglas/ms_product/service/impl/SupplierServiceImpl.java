@@ -1,6 +1,7 @@
 package io.github.douglas.ms_product.service.impl;
 
 import io.github.douglas.ms_product.config.exception.ValidationException;
+import io.github.douglas.ms_product.dto.GenericIdHandler;
 import io.github.douglas.ms_product.dto.SupplierDTO;
 import io.github.douglas.ms_product.model.entity.Supplier;
 import io.github.douglas.ms_product.model.repository.SupplierRepository;
@@ -52,10 +53,10 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public SupplierDTO getSupplierDetails(UUID id) {
+    public SupplierDTO getSupplierDetails(GenericIdHandler request) {
         return new SupplierDTO(
-                supplierRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException(supplierNotFoundMessage(id))));
+                supplierRepository.findById(request.id())
+                        .orElseThrow(() -> new ResourceNotFoundException(supplierNotFoundMessage(request.id()))));
     }
 
     @Override
@@ -82,7 +83,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public void deleteSupplier(SupplierDTO request) {
+    public void deleteSupplier(GenericIdHandler request) {
         var supplier = supplierRepository.findById(request.id())
                 .orElseThrow(() -> new ResourceNotFoundException(supplierNotFoundMessage(request.id())));
         supplierRepository.delete(supplier);

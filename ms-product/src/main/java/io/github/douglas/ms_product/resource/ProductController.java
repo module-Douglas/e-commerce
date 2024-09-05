@@ -1,5 +1,6 @@
 package io.github.douglas.ms_product.resource;
 
+import io.github.douglas.ms_product.dto.GenericIdHandler;
 import io.github.douglas.ms_product.dto.ProductDTO;
 import io.github.douglas.ms_product.dto.RegisterProductDTO;
 import io.github.douglas.ms_product.service.ProductService;
@@ -8,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -23,32 +23,31 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<?> registerProduct(@RequestBody RegisterProductDTO request) {
-        return ResponseEntity.created(
-                productService.registerProduct(request)
-        ).build();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getProductDetails(@PathVariable("id") UUID id) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(productService.getProductDetails(id));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(productService.registerProduct(request));
     }
 
     @GetMapping
+    public ResponseEntity<?> getProductDetails(@RequestBody GenericIdHandler request) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(productService.getProductDetails(request));
+    }
+
+    @GetMapping("/all")
     public ResponseEntity<?> getAllProductsLike(String name, String brand, UUID[] categories, UUID supplierId, Pageable pageRequest) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.getAll(name, brand, categories, supplierId, pageRequest));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable("id") UUID id) {
-        productService.deleteProduct(id);
+    @DeleteMapping
+    public ResponseEntity<?> deleteProduct(@RequestBody GenericIdHandler request) {
+        productService.deleteProduct(request);
         return ResponseEntity.status(HttpStatus.OK)
                 .build();
     }
 
     @PatchMapping
-    public ResponseEntity<?> updateProduct(@RequestBody RegisterProductDTO request) {
+    public ResponseEntity<?> updateProduct(@RequestBody ProductDTO request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.updateProduct(request));
     }

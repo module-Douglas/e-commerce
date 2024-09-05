@@ -2,10 +2,7 @@ package io.github.douglas.ms_product.service.impl;
 
 import io.github.douglas.ms_product.broker.KafkaProducer;
 import io.github.douglas.ms_product.config.exception.ValidationException;
-import io.github.douglas.ms_product.dto.ProductDTO;
-import io.github.douglas.ms_product.dto.RegisterProductDTO;
-import io.github.douglas.ms_product.dto.RegisterInventoryDTO;
-import io.github.douglas.ms_product.dto.UpdateInventoryDTO;
+import io.github.douglas.ms_product.dto.*;
 import io.github.douglas.ms_product.model.entity.Brand;
 import io.github.douglas.ms_product.model.entity.Category;
 import io.github.douglas.ms_product.model.entity.Product;
@@ -17,16 +14,16 @@ import io.github.douglas.ms_product.model.repository.SupplierRepository;
 import io.github.douglas.ms_product.service.ProductService;
 import io.github.douglas.ms_product.utils.JsonUtil;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.math.BigDecimal;
-import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,8 +56,10 @@ public class ProductServiceImpl implements ProductService {
         this.jsonUtil = jsonUtil;
     }
 
+    @CacheEvict(value = "pageProducts", allEntries = true)
     @Override
-    public URI registerProduct(RegisterProductDTO request) {
+    public ProductDTO registerProduct(RegisterProductDTO request) {
+        checkName(request.name());
         var categories = getCategories(request.categories());
         var supplier = getSupplier(request.supplierId());
         var brand = getOrRegisterBrand(request.brand().toUpperCase());
@@ -84,8 +83,7 @@ public class ProductServiceImpl implements ProductService {
                 jsonUtil.toJson(registerInventory)
         );
 
-        return ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(product.getId()).toUri();
+        return new ProductDTO(product);
     }
 
     @Override
@@ -98,11 +96,11 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
     }
 
-    @Cacheable(value = "product", key = "#id")
+    @Cacheable(value = "product", key = "#request.id()")
     @Override
-    public ProductDTO getProductDetails(UUID id) {
-        var product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s.", id)));
+    public ProductDTO getProductDetails(GenericIdHandler request) {
+        var product = productRepository.findById(request.id())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s.", request.id())));
 
         return new ProductDTO(product);
     }
@@ -133,14 +131,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void deleteProduct(UUID id) {
-        var product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s.", id)));
+    public void deleteProduct(GenericIdHandler request) {
+        var product = productRepository.findById(request.id())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s.", request.id())));
         productRepository.delete(product);
     }
 
     @Override
-    public ProductDTO updateProduct(RegisterProductDTO request) {
+    public ProductDTO updateProduct(ProductDTO request) {
         var product = productRepository.findById(request.id())
                 .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s.", request.id())));
 
@@ -148,6 +146,12 @@ public class ProductServiceImpl implements ProductService {
         product.setBrand(getBrand(request.brand()));
         product.setDescription(request.description());
         product.setUnitValue(request.unitValue());
+        var categories = getCategories(
+                request.categories().stream()
+                        .map(CategoryDTO::id)
+                        .collect(Collectors.toSet())
+        );
+        product.setCategories(categories);
 
         kafkaProducer.sendInventoryUpdate(
                 jsonUtil.toJson(new UpdateInventoryDTO(product.getInventoryId(), product.getId(), request.unitValue()))
@@ -168,6 +172,12 @@ public class ProductServiceImpl implements ProductService {
 
         product.setStatus(inventory.status());
         productRepository.save(product);
+    }
+
+    private void checkName(String name) {
+        name = name.toUpperCase();
+        if (productRepository.existsByName(name))
+            throw new DataIntegrityViolationException(format("Product with name %s is already registered.", name));
     }
 
     private Set<Category> getCategories(Set<UUID> categories) {
