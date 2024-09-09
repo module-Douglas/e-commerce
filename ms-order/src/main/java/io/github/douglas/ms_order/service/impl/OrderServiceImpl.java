@@ -3,6 +3,7 @@ package io.github.douglas.ms_order.service.impl;
 import io.github.douglas.ms_order.broker.KafkaProducer;
 import io.github.douglas.ms_order.config.exception.ResourceNotFoundException;
 import io.github.douglas.ms_order.dto.BasicOrderDTO;
+import io.github.douglas.ms_order.dto.GenericIdHandler;
 import io.github.douglas.ms_order.dto.OrderRequest;
 import io.github.douglas.ms_order.dto.order.OrderDTO;
 import io.github.douglas.ms_order.model.entity.*;
@@ -93,15 +94,16 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDTO getOrderDetails(String id) {
-        var order = orderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(format("Order not found with id: %s", id)));
+    public OrderDTO getOrderDetails(String request) {
+        var order = orderRepository.findById(request)
+                .orElseThrow(() -> new ResourceNotFoundException(format("Order not found with id: %s", request)));
         return new OrderDTO(order);
     }
 
     @Override
-    public PageImpl<BasicOrderDTO> getAllOrderByUser(UUID accountId, Pageable pageRequest) {
-        List<BasicOrderDTO> response = orderRepository.findAllByAccountDetails_UserId(accountId, pageRequest)
+    public PageImpl<BasicOrderDTO> getAllOrderByUser(UUID request, Pageable pageRequest) {
+        List<BasicOrderDTO> response = orderRepository
+                .findAllByAccountDetails_AccountId(request, pageRequest)
                 .stream()
                 .map(BasicOrderDTO::new)
                 .toList();
@@ -110,9 +112,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void cancelOrder(String orderId) {
-        var order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException(format("Order not found with id: %s.", orderId)));
+    public void cancelOrder(GenericIdHandler request) {
+        var order = orderRepository.findById(request.id())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Order not found with id: %s.", request.id())));
 
         order.setStatus(CANCELED);
         orderRepository.save(order);

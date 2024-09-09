@@ -1,6 +1,5 @@
 package io.github.douglas.ms_notification.config.kafka;
 
-import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -19,7 +18,6 @@ import static io.github.douglas.ms_notification.enums.Topics.SEND_EMAIL;
 
 @EnableKafka
 @Configuration
-@RequiredArgsConstructor
 public class KafkaConfig {
 
     private static final Integer REPLICAS_COUNT = 1;

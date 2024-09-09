@@ -12,6 +12,6 @@ import java.util.UUID;
 @Repository
 public interface OrderRepository extends MongoRepository<Order, String> {
 
-    List<Order> findAllByAccountDetails_UserId(UUID userId, Pageable pageable);
+    List<Order> findAllByAccountDetails_AccountId(UUID accountId, Pageable pageable);
 
 }

@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface CategoryService {
     CategoryDTO registerCategory(CategoryDTO request);
 
-    CategoryDTO getCategoryById(GenericIdHandler request);
+    CategoryDTO getCategoryById(UUID request);
 
     List<CategoryDTO> getAll();
 

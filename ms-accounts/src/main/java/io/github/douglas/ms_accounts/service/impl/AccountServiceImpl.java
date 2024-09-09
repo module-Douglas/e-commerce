@@ -20,15 +20,25 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static io.github.douglas.ms_accounts.enums.Type.EMAIL;
 import static io.github.douglas.ms_accounts.enums.Type.PASSWORD;
+import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 
 @Service
 public class AccountServiceImpl implements AccountService {
+
+    private static final Integer CPF_LENGTH = 11;
+    private static final Integer FIRST_DIGIT_INDEX = 9;
+    private static final Integer SECOND_DIGIT_INDEX = 10;
+    private static final Integer FIRST_DIGIT_MULTIPLIER = 10;
+    private static final Integer SECOND_DIGIT_MULTIPLIER = 11;
+    private static final String CPF_PATTERN = "\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}";
+    private static final String EMAIL_PATTERN = "^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$";
 
     private final AccountRepository accountRepository;
     private final ConfirmationCodeRepository confirmationCodeRepository;
@@ -66,8 +76,7 @@ public class AccountServiceImpl implements AccountService {
                 .map(role -> roleRepository.findById(role)
                         .orElseThrow())
                 .collect(Collectors.toSet());
-        var account = new Account(request, passwordEncoder.encode(request.password()));
-        account.setRoles(roles);
+        var account = new Account(request, passwordEncoder.encode(request.password()), roles);
 
         return new AccountDTO(accountRepository.save(account));
     }
@@ -90,13 +99,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public ResetCodeDTO requestResetPassword(String accountEmail) {
-        accountRepository.findByEmail(accountEmail)
-                .orElseThrow(() -> new ResourceNotFoundException(accountNotFoundWithEmailMessage(accountEmail)));
+    public ResetCodeDTO requestResetPassword(GenericEmailHandler request) {
+        accountRepository.findByEmail(request.email())
+                .orElseThrow(() -> new ResourceNotFoundException(accountNotFoundWithEmailMessage(request.email())));
 
-        var resetCode = generateResetCode(accountEmail, PASSWORD);
+        var resetCode = generateResetCode(request.email(), PASSWORD);
 
-        var alreadyRegisteredCode = confirmationCodeRepository.findByAccountEmail(accountEmail);
+        var alreadyRegisteredCode = confirmationCodeRepository.findByAccountEmail(request.email());
         alreadyRegisteredCode.ifPresent(confirmationCodeRepository::delete);
 
         confirmationCodeRepository.save(resetCode);
@@ -126,14 +135,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public ResetCodeDTO changeEmailRequest(String accountEmail) {
-        var account = accountRepository.findByEmail(accountEmail)
-                .orElseThrow(() -> new ResourceNotFoundException(accountNotFoundWithEmailMessage(accountEmail)));
+    public ResetCodeDTO changeEmailRequest(GenericEmailHandler request) {
+        var account = accountRepository.findByEmail(request.email())
+                .orElseThrow(() -> new ResourceNotFoundException(accountNotFoundWithEmailMessage(request.email())));
 
-        if (!account.getEmail().equals(accountEmail))
+        if (!account.getEmail().equals(request.email()))
             throw new ValidationException("Something went wrong. Current email doesn't match with account registered email.");
 
-        var resetCode = generateResetCode(accountEmail, EMAIL);
+        var resetCode = generateResetCode(request.email(), EMAIL);
 
         var alreadyRegisteredCode = confirmationCodeRepository.findByAccountEmail(account.getEmail());
         alreadyRegisteredCode.ifPresent(confirmationCodeRepository::delete);
@@ -152,7 +161,7 @@ public class AccountServiceImpl implements AccountService {
         var resetCode = confirmationCodeRepository.findByAccountEmail(request.currentEmail())
                 .orElseThrow(() -> new ResourceNotFoundException(format("Cannot found a reset password request for this email: %s.", request.currentEmail())));
 
-        validateResetCode(request.resetCode(), resetCode);
+        validateResetCode(request.validationCode(), resetCode);
         emailCheck(request.newEmail());
         validateType(EMAIL, resetCode.getType());
 
@@ -164,8 +173,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void banAccount(AccountDTO accountDTO) {
-        accountRepository.deleteById(accountDTO.id());
+    public void deleteAccount(GenericIdHandler request) {
+        accountRepository.deleteById(request.id());
     }
 
     @Override
@@ -181,16 +190,45 @@ public class AccountServiceImpl implements AccountService {
         account.setEmail(request.email());
 
         return new AccountDTO(
-                accountRepository.save(account)
-        );
+                accountRepository.save(account));
     }
 
     private void cpfCheck(String cpf) {
-        if (accountRepository.existsByCpf(cpf))
-            throw new DataIntegrityViolationException("CPF already registered.");
+        if (!Pattern.matches(CPF_PATTERN, cpf))
+            throw new ValidationException("Invalid CPF format.");
+
+        var formatedCpf = cleanCpf(cpf);
+        if (formatedCpf.length() != CPF_LENGTH)
+            throw new ValidationException("Invalid CPF size.");
+
+        var sum = 0;
+        for (int i = 0; i < FIRST_DIGIT_INDEX; i++) {
+            sum += parseInt(valueOf(formatedCpf.charAt(i))) * (FIRST_DIGIT_MULTIPLIER - i);
+        }
+
+        var mod = (sum % 11);
+        char firstDigit = (mod == 0 || mod == 1) ? '0' : (char) ('0' + (11 - mod));
+
+        sum = 0;
+
+        for (int i = 0; i < SECOND_DIGIT_INDEX; i++) {
+            sum += parseInt(valueOf(formatedCpf.charAt(i))) * (SECOND_DIGIT_MULTIPLIER - i);
+        }
+
+        mod = (sum % 11);
+        char secondDigit = (mod == 0 || mod == 1) ? '0' : (char) ('0' + (11 - mod));
+
+        if ((formatedCpf.charAt(FIRST_DIGIT_INDEX) != firstDigit) || (formatedCpf.charAt(SECOND_DIGIT_INDEX) != secondDigit))
+            throw new ValidationException("Invalid CPF.");
+
+        if (accountRepository.existsByCpf(formatedCpf))
+            throw new DataIntegrityViolationException(format("CPF %s already registered.", cpf));
     }
 
     private void emailCheck(String email) {
+        if (!Pattern.matches(EMAIL_PATTERN, email))
+            throw new ValidationException("Invalid email.");
+
         if (accountRepository.existsByEmail(email))
             throw new DataIntegrityViolationException("Email already in use. Try to reset your password.");
     }
@@ -232,6 +270,10 @@ public class AccountServiceImpl implements AccountService {
                 LocalDateTime.now().plusMinutes(3),
                 type
         );
+    }
+
+    private String cleanCpf(String cpf) {
+        return cpf.replaceAll("\\D", "");
     }
 
     private static String accountNotFoundWithEmailMessage(String email) {

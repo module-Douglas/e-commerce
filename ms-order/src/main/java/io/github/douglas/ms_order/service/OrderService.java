@@ -1,6 +1,7 @@
 package io.github.douglas.ms_order.service;
 
 import io.github.douglas.ms_order.dto.BasicOrderDTO;
+import io.github.douglas.ms_order.dto.GenericIdHandler;
 import io.github.douglas.ms_order.dto.OrderRequest;
 import io.github.douglas.ms_order.dto.order.OrderDTO;
 import org.springframework.data.domain.PageImpl;
@@ -16,9 +17,9 @@ public interface OrderService {
 
     PageImpl<BasicOrderDTO> getAll(Pageable pageRequest);
 
-    OrderDTO getOrderDetails(String id);
+    OrderDTO getOrderDetails(String request);
 
-    PageImpl<BasicOrderDTO> getAllOrderByUser(UUID accountId, Pageable pageRequest);
+    PageImpl<BasicOrderDTO> getAllOrderByUser(UUID request, Pageable pageRequest);
 
-    void cancelOrder(String orderId);
+    void cancelOrder(GenericIdHandler request);
 }

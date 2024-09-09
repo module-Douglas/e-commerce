@@ -22,7 +22,7 @@ public class Account {
     private String lastName;
     @Column(unique = true)
     private String email;
-    @Column(unique = true)
+    @Column(unique = true, updatable = false)
     private String cpf;
     private String password;
     @Column(updatable = false)
@@ -64,9 +64,13 @@ public class Account {
         this.password = password;
     }
 
-    public Account(RegisterAccountDTO registerAccountDTO, String password) {
-        BeanUtils.copyProperties(registerAccountDTO, this);
+    public Account(RegisterAccountDTO request, String password, Set<Role> roles) {
+        this.firstName = request.firstName();
+        this.lastName = request.lastName();
+        this.email = request.email();
+        this.cpf = request.cpf();
         this.password = password;
+        this.roles = roles;
     }
 
     public Account(UUID id, String firstName, String lastName, String email, String cpf, String password) {

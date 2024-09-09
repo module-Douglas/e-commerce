@@ -25,8 +25,8 @@ public class SupplierController {
                 .body(supplierService.registerSupplier(request));
     }
 
-    @GetMapping
-    public ResponseEntity<?> getById(@RequestBody GenericIdHandler request) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable("id") UUID request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(supplierService.getSupplierDetails(request));
     }

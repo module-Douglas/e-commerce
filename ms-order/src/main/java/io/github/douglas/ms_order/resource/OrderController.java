@@ -1,5 +1,6 @@
 package io.github.douglas.ms_order.resource;
 
+import io.github.douglas.ms_order.dto.GenericIdHandler;
 import io.github.douglas.ms_order.dto.OrderRequest;
 import io.github.douglas.ms_order.service.OrderService;
 import org.springframework.data.domain.Pageable;
@@ -33,20 +34,20 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getOrderById(@PathVariable("id") String id) {
+    public ResponseEntity<?> getOrderById(@PathVariable("id")String request) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(orderService.getOrderDetails(id));
+                .body(orderService.getOrderDetails(request));
     }
 
     @GetMapping("/account/{id}")
-    public ResponseEntity<?> getOrdersByAccount(@PathVariable("id") UUID id, Pageable pageRequest) {
+    public ResponseEntity<?> getOrdersByAccount(@PathVariable("id") UUID request, Pageable pageRequest) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(orderService.getAllOrderByUser(id, pageRequest));
+                .body(orderService.getAllOrderByUser(request, pageRequest));
     }
 
     @PatchMapping
-    public ResponseEntity<?> cancelOrder(@RequestBody String orderId) {
-        orderService.cancelOrder(orderId);
+    public ResponseEntity<?> cancelOrder(@RequestBody GenericIdHandler request) {
+        orderService.cancelOrder(request);
         return ResponseEntity.status(HttpStatus.OK)
                 .build();
     }

@@ -34,9 +34,9 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserDetails(@PathVariable("id") UUID id) {
+    public ResponseEntity<?> getUserDetails(@PathVariable("id") UUID request) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(accountService.getUserDetails(id));
+                .body(accountService.getUserDetails(request));
     }
 
     @PostMapping("/refresh-token")
@@ -46,7 +46,7 @@ public class AccountController {
     }
 
     @PostMapping("/password-reset")
-    public ResponseEntity<?> requestPasswordReset(@RequestBody String accountEmail) {
+    public ResponseEntity<?> requestPasswordReset(@RequestBody GenericEmailHandler accountEmail) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(accountService.requestResetPassword(accountEmail));
     }
@@ -65,13 +65,13 @@ public class AccountController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> banAccount(@RequestBody AccountDTO request) {
-        accountService.banAccount(request);
+    public ResponseEntity<?> deleteAccount(@RequestBody GenericIdHandler request) {
+        accountService.deleteAccount(request);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping("/change-email")
-    public ResponseEntity<?> requestEmailUpdate(@RequestBody String accountEmail) {
+    public ResponseEntity<?> requestEmailUpdate(@RequestBody GenericEmailHandler accountEmail) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(accountService.changeEmailRequest(accountEmail));
     }

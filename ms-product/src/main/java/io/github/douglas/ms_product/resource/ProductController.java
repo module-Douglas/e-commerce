@@ -27,13 +27,13 @@ public class ProductController {
                 .body(productService.registerProduct(request));
     }
 
-    @GetMapping
-    public ResponseEntity<?> getProductDetails(@RequestBody GenericIdHandler request) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProductDetails(@PathVariable("id") UUID request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.getProductDetails(request));
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<?> getAllProductsLike(String name, String brand, UUID[] categories, UUID supplierId, Pageable pageRequest) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productService.getAll(name, brand, categories, supplierId, pageRequest));

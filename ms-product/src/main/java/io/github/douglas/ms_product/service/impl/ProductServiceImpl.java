@@ -96,11 +96,11 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
     }
 
-    @Cacheable(value = "product", key = "#request.id()")
+    @Cacheable(value = "product", key = "#request")
     @Override
-    public ProductDTO getProductDetails(GenericIdHandler request) {
-        var product = productRepository.findById(request.id())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s.", request.id())));
+    public ProductDTO getProductDetails(UUID request) {
+        var product = productRepository.findById(request)
+                .orElseThrow(() -> new ResourceNotFoundException(format("Product not found with id: %s.", request)));
 
         return new ProductDTO(product);
     }

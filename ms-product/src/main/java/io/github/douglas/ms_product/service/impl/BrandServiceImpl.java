@@ -31,12 +31,12 @@ public class BrandServiceImpl implements BrandService {
                 brandRepository.save(new Brand(request.name().toUpperCase())));
     }
 
-    @Cacheable(value = "brand", key = "#request.id()")
+    @Cacheable(value = "brand", key = "#request")
     @Override
-    public BrandDTO getBrandById(GenericIdHandler request) {
+    public BrandDTO getBrandById(UUID request) {
         return new BrandDTO(
-                brandRepository.findById(request.id())
-                        .orElseThrow(() -> new ResourceNotFoundException(brandNotFoundMessage(request.id()))));
+                brandRepository.findById(request)
+                        .orElseThrow(() -> new ResourceNotFoundException(brandNotFoundMessage(request))));
     }
 
     @Cacheable(value = "brands")

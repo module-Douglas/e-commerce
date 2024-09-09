@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface SupplierService {
     SupplierDTO registerSupplier(SupplierDTO request);
 
-    SupplierDTO getSupplierDetails(GenericIdHandler request);
+    SupplierDTO getSupplierDetails(UUID request);
 
     SupplierDTO updateSupplier(SupplierDTO request);
 

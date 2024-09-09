@@ -25,13 +25,13 @@ public class CategoryController {
                 .body(categoryService.registerCategory(request));
     }
 
-    @GetMapping
-    public ResponseEntity<?> getById(@RequestBody GenericIdHandler request) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable("id") UUID request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(categoryService.getCategoryById(request));
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<?> getAll() {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(categoryService.getAll());

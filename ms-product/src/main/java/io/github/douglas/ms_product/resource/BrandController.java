@@ -3,7 +3,6 @@ package io.github.douglas.ms_product.resource;
 import io.github.douglas.ms_product.dto.BrandDTO;
 import io.github.douglas.ms_product.dto.GenericIdHandler;
 import io.github.douglas.ms_product.service.BrandService;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,13 +25,13 @@ public class BrandController {
                 .body(brandService.registerBrand(request));
     }
 
-    @GetMapping
-    public ResponseEntity<?> getById(@RequestBody GenericIdHandler request) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable("id") UUID request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(brandService.getBrandById(request));
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<?> getAll() {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(brandService.getAllBrands());

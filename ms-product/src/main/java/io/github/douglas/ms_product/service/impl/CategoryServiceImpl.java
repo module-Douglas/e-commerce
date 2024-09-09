@@ -11,6 +11,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 import static java.lang.String.format;
 
@@ -30,12 +31,12 @@ public class CategoryServiceImpl implements CategoryService {
                 categoryRepository.save(new Category(request.name().toUpperCase())));
     }
 
-    @Cacheable(value = "category", key = "#request.id()")
+    @Cacheable(value = "category", key = "#request")
     @Override
-    public CategoryDTO getCategoryById(GenericIdHandler request) {
+    public CategoryDTO getCategoryById(UUID request) {
         return new CategoryDTO(
-                categoryRepository.findById(request.id())
-                        .orElseThrow(() -> new ResourceNotFoundException(format("Category not found with id: %s", request.id()))));
+                categoryRepository.findById(request)
+                        .orElseThrow(() -> new ResourceNotFoundException(format("Category not found with id: %s", request))));
     }
 
     @Cacheable(value = "categories")

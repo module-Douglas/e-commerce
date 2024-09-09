@@ -184,11 +184,19 @@ public class InventoryServiceImpl implements InventoryService {
                 .findByOrderIdAndTransactionId(event.id(), event.transactionId())
                 .forEach(inventoryHistoric -> {
                     var inventory = inventoryHistoric.getInventory();
-                    inventory.setStockAmount(inventoryHistoric.getOldQuantity());
+                    inventory.setStockAmount(checkRollback(inventory, inventoryHistoric));
                     inventoryRepository.save(inventory);
                     log.info("Restored inventory {} for order {} from {} to {}",
                             inventory.getId(), event.id(), inventoryHistoric.getNewQuantity(), inventoryHistoric.getOldQuantity());
                 });
+    }
+
+    private Long checkRollback(Inventory inventory, InventoryHistoric historic) {
+        var value = inventory.getStockAmount() + historic.getOrderQuantity();
+        if (value == historic.getOldQuantity()) {
+          return historic.getOldQuantity();
+        }
+        return (inventory.getStockAmount() + historic.getOrderQuantity());
     }
 
     private void updateProductStatus(Inventory inventory) {

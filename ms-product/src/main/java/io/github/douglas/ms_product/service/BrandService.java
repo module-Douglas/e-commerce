@@ -11,7 +11,7 @@ import java.util.UUID;
 public interface BrandService {
     BrandDTO registerBrand(BrandDTO request);
 
-    BrandDTO getBrandById(GenericIdHandler request);
+    BrandDTO getBrandById(UUID request);
 
     List<BrandDTO> getAllBrands();
 

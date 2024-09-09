@@ -53,10 +53,10 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public SupplierDTO getSupplierDetails(GenericIdHandler request) {
+    public SupplierDTO getSupplierDetails(UUID request) {
         return new SupplierDTO(
-                supplierRepository.findById(request.id())
-                        .orElseThrow(() -> new ResourceNotFoundException(supplierNotFoundMessage(request.id()))));
+                supplierRepository.findById(request)
+                        .orElseThrow(() -> new ResourceNotFoundException(supplierNotFoundMessage(request))));
     }
 
     @Override

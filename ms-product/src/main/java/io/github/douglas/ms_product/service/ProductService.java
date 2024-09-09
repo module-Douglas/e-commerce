@@ -14,7 +14,7 @@ public interface ProductService {
 
     void linkInventory(String payload);
 
-    ProductDTO getProductDetails(GenericIdHandler request);
+    ProductDTO getProductDetails(UUID request);
 
     PageImpl<ProductDTO> getAll(String name, String brand, UUID[] categories, UUID supplierId, Pageable pageRequest);
 
