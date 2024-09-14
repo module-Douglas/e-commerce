@@ -42,7 +42,7 @@ public class ProductController {
     @DeleteMapping
     public ResponseEntity<?> deleteProduct(@RequestBody GenericIdHandler request) {
         productService.deleteProduct(request);
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .build();
     }
 

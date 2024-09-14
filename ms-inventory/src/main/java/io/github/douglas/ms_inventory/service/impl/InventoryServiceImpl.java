@@ -5,6 +5,7 @@ import io.github.douglas.ms_inventory.config.exception.ValidationException;
 import io.github.douglas.ms_inventory.dto.InventoryDTO;
 import io.github.douglas.ms_inventory.dto.LinkInventory;
 import io.github.douglas.ms_inventory.dto.UpdateProductStatusDTO;
+import io.github.douglas.ms_inventory.dto.UpdateStockAmountDTO;
 import io.github.douglas.ms_inventory.dto.event.Event;
 import io.github.douglas.ms_inventory.dto.event.History;
 import io.github.douglas.ms_inventory.dto.event.Product;
@@ -64,7 +65,7 @@ public class InventoryServiceImpl implements InventoryService {
     public InventoryDTO findByProductId(UUID productId) {
         return new InventoryDTO(
                 inventoryRepository.findByProductId(productId)
-                        .orElseThrow(() -> new RuntimeException("Product not found"))
+                        .orElseThrow(() -> new ResourceNotFoundException(format("Inventory not found for product id: %s.", productId)))
         );
     }
 
@@ -91,7 +92,7 @@ public class InventoryServiceImpl implements InventoryService {
             );
         } catch (Exception e) {
             kafkaProducer.sendEvent(
-                    jsonUtil.toJson(addHistory(event, format("Rollback couldn't be executed: %s", e.getMessage()), FAIL))
+                    jsonUtil.toJson(addHistory(event, format("Rollback couldn't be executed: %s.", e.getMessage()), FAIL))
             );
         }
     }
@@ -100,7 +101,7 @@ public class InventoryServiceImpl implements InventoryService {
     public InventoryDTO findById(UUID id) {
         return new InventoryDTO(
                 inventoryRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException(format("Inventory not found with id: %s", id)))
+                        .orElseThrow(() -> new ResourceNotFoundException(format("Inventory not found with id: %s.", id)))
         );
     }
 
@@ -108,10 +109,21 @@ public class InventoryServiceImpl implements InventoryService {
     public void updateInventory(String payload) {
         var data = jsonUtil.toUpdateInventory(payload);
         var inventory = inventoryRepository.findByProductId(data.productId())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Inventory not found for product id: %s", data.productId())));
+                .orElseThrow(() -> new ResourceNotFoundException(format("Inventory not found for product id: %s.", data.productId())));
 
         inventory.setUnitValue(data.unitValue());
         inventoryRepository.save(inventory);
+    }
+
+    @Override
+    public String updateStockAmount(UpdateStockAmountDTO request) {
+        var inventory = inventoryRepository.findById(request.inventoryId())
+                .orElseThrow(() -> new ResourceNotFoundException(format("Inventory not found with id: %s.", request.inventoryId())));
+        inventory.setStockAmount(inventory.getStockAmount() + request.value());
+
+        inventoryRepository.save(inventory);
+
+        return format("Inventory %s stock successfully updated.", request.inventoryId());
     }
 
     private void handleSuccess(Event event) {

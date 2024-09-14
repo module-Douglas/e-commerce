@@ -1,7 +1,7 @@
 package io.github.douglas.ms_inventory.service;
 
 import io.github.douglas.ms_inventory.dto.InventoryDTO;
-import io.github.douglas.ms_inventory.dto.event.Event;
+import io.github.douglas.ms_inventory.dto.UpdateStockAmountDTO;
 
 import java.util.UUID;
 
@@ -17,4 +17,6 @@ public interface InventoryService {
     InventoryDTO findById(UUID id);
 
     void updateInventory(String payload);
+
+    String updateStockAmount(UpdateStockAmountDTO request);
 }

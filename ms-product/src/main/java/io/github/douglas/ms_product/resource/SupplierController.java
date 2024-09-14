@@ -40,7 +40,7 @@ public class SupplierController {
     @DeleteMapping
     public ResponseEntity<?> deleteSupplier(@RequestBody GenericIdHandler request) {
         supplierService.deleteSupplier(request);
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .build();
     }
 }

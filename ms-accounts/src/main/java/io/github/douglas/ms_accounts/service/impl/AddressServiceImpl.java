@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 
 @Service
@@ -30,9 +31,13 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public AddressDTO registerAddress(AddressDTO request) {
         var user = getAccount(request.accountId());
+        validateAddress(request);
         var address = new Address(request);
         address.setAccount(user);
-        return new AddressDTO(addressRepository.save(address));
+
+        return new AddressDTO(
+                addressRepository.save(address)
+        );
     }
 
     @Override
@@ -74,6 +79,26 @@ public class AddressServiceImpl implements AddressService {
     private Account getAccount(UUID accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException(format("User not found with id: %s", accountId)));
+    }
+
+    private static void validateAddress(AddressDTO request) {
+        if (request.street() == null || request.street().isEmpty() || request.street().isBlank())
+            throw new ValidationException("Street field cannot be null or empty.");
+
+        if (request.number() == null || request.number().isEmpty() || request.number().isBlank())
+            throw new ValidationException("Number field cannot be null or empty.");
+
+        if (request.zipCode() == null || request.zipCode().isEmpty() || request.zipCode().isBlank())
+            throw new ValidationException("Zip Code field cannot be null or empty.");
+
+        if (request.city() == null || request.city().isEmpty() || request.city().isBlank())
+            throw new ValidationException("City field cannot be null or empty.");
+
+        if (request.state() == null || request.state().isEmpty() || request.state().isBlank())
+            throw new ValidationException("State field cannot be null or empty.");
+
+        if (request.neighborhood() == null || request.neighborhood().isEmpty() || request.neighborhood().isBlank())
+            throw new ValidationException("Neighborhood field cannot be null or empty.");
     }
 
 }
